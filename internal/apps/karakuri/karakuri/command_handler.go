@@ -395,22 +395,10 @@ func ExecContainer(request_param RequestExecContainer) {
 	}
 	if res, message := requestExecContainer(container_id); !res {
 		fmt.Println(message)
+		return
 	} else {
-		// setup port forward
-		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-		SetupPortForwarding("add", config_spec.Network)
-
 		// execute runtime: start
 		karakuripkgs.RuntimeExec(container_id, request_param.Terminal, request_param.Cmd)
-
-		// update status
-		if request_param.Terminal {
-			hitoha.UpdateContainerStatus(container_id, "stoped")
-			// delete port forward
-			SetupPortForwarding("delete", config_spec.Network)
-		} else {
-			hitoha.UpdateContainerStatus(container_id, "running")
-		}
 	}
 }
 
