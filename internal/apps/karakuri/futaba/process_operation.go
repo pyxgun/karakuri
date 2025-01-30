@@ -5,6 +5,7 @@ import (
 	"karakuripkgs"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -277,12 +278,28 @@ func InitContainer(spec string) {
 }
 
 func ExecContainer(id string, terminal bool, command string) {
-	if command != "" {
-		cmd_args := strings.Split(command, ",")
-		karakuripkgs.UpdateSpecCmd(karakuripkgs.FUTABA_ROOT+"/"+id, cmd_args)
-	}
+	// config spec path
+	container_spec_path := karakuripkgs.FUTABA_ROOT + "/" + id
+	// read config spec
+	config_spec := karakuripkgs.ReadSpecFile(container_spec_path)
+	// command
+	cmd := strings.Split(command, ",")
 
-	StartContainer(id, terminal)
+	pid := config_spec.Process.Pid
+	args := []string{"-t", strconv.Itoa(pid), "-m", "-u", "-i", "-n", "-p"}
+	args = append(args, cmd...)
+	nsenter := exec.Command("nsenter", args...)
+
+	nsenter.Stdin = os.Stdin
+	nsenter.Stdout = os.Stdout
+	nsenter.Stderr = os.Stderr
+
+	if err := nsenter.Start(); err != nil {
+		panic(err)
+	}
+	if terminal {
+		nsenter.Wait()
+	}
 }
 
 func KillContainer(id string) {

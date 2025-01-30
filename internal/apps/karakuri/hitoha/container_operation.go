@@ -139,13 +139,10 @@ func StartContainer(id string) ResponseContainerInfo {
 
 func ExecContainer(id string) ResponseContainerInfo {
 	container_status := checkContainerStatus(id)
-	if container_status == "created" || container_status == "stoped" {
-		// update status: running
-		container_info := UpdateContainerStatus(id, "running")
-
-		return createResponseContainerInfo("success", container_info, "container exec success.")
+	if container_status == "running" {
+		return createResponseContainerInfo("success", ContainerInfo{}, "container exec success.")
 	} else {
-		return createResponseContainerInfo("error", ContainerInfo{}, "container: "+id+" is already up and running.")
+		return createResponseContainerInfo("error", ContainerInfo{}, "container: "+id+" is not running.")
 	}
 }
 
