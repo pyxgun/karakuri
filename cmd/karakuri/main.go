@@ -228,6 +228,21 @@ func main() {
 				})
 			},
 		},
+		// all stop
+		{
+			Name:  "stopall",
+			Usage: "stop all container",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "ns",
+					Value:       "all",
+					Destination: &flag_namespace,
+				},
+			},
+			Action: func(c *cli.Context) {
+				karakuri.StopAllContaier(flag_namespace)
+			},
+		},
 		// restart
 		{
 			Name:  "restart",

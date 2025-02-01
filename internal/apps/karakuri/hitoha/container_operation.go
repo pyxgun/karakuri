@@ -176,7 +176,7 @@ func KillContainer(id string) ResponseStopContainer {
 		// update status
 		UpdateContainerStatus(id, "stoped")
 
-		return createResponseStopContainer("success", id, "container stop success.")
+		return createResponseStopContainer("success", id, "container: "+id+" stop success.")
 	} else {
 		return createResponseStopContainer("error", id, "container: "+id+" is not running.")
 	}
