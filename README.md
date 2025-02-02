@@ -85,6 +85,7 @@ $ sudo karakuri rm --name=mycontainer
 
 ## More documentation
 * [Command List](./docs/command_list.md)
+* [Container Specification](./docs/container_spec.md)
 
 ## License
 The code and docs are released under the [MIT license](LICENSE).
