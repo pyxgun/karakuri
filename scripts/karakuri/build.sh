@@ -7,3 +7,4 @@ outdir="../../bin"
 outname="karakuri"
 
 go build -o $outdir/$outname
+sudo cp $outdir/$outname /bin

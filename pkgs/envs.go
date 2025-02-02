@@ -1,5 +1,19 @@
 package karakuripkgs
 
+// ====================================
+//
+//	Edit to match your environment
+//
+// ====================================
+const (
+	HOST_NIC = "eth0"
+)
+
+// ====================================
+//
+//	Don't edit from here on
+//
+// ====================================
 // directories
 const (
 	// root directory
@@ -23,6 +37,6 @@ const (
 
 // runtime
 const (
-	RUNTIME = "/home/pyxgun/karakuri/bin/futaba"
-	SERVER  = "http://localhost:9876"
+	RUNTIME = "/bin/futaba"
+	SERVER  = "http://localhost:9806"
 )

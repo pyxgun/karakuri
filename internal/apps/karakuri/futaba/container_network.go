@@ -10,7 +10,7 @@ import (
 func setupContainerNetwork(pid int, networ_spec karakuripkgs.SpecNetwork) {
 	str_pid := strconv.Itoa(pid)
 	// create veth
-	cmd1 := exec.Command("ip", "link", "add", "name", "karakuri"+str_pid, "type", "veth", "peer", "name", "eth0", "netns", str_pid)
+	cmd1 := exec.Command("ip", "link", "add", "name", "karakuri"+str_pid, "type", "veth", "peer", "name", karakuripkgs.HOST_NIC, "netns", str_pid)
 	if err := cmd1.Run(); err != nil {
 		panic(err)
 	}

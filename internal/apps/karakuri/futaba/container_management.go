@@ -38,7 +38,7 @@ func newContainerDirectory(spec karakuripkgs.ConfigSpec) {
 	}
 }
 
-func newContainerList() {
+func NewContainerList() {
 	var container_list ContainerList
 	file, _ := json.MarshalIndent(container_list, "", "  ")
 	if err := os.WriteFile(karakuripkgs.FUTABA_CONTAINER_LIST, file, os.ModePerm); err != nil {
@@ -50,7 +50,7 @@ func addContainerList(spec karakuripkgs.ConfigSpec) {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.FUTABA_CONTAINER_LIST)
 	if err != nil {
-		newContainerList()
+		NewContainerList()
 		bytes, _ = os.ReadFile(karakuripkgs.FUTABA_CONTAINER_LIST)
 	}
 

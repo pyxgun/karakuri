@@ -78,12 +78,12 @@ func deleteContainerModTrafficRule(dev_name string) {
 
 func allowContainerTrafficRule(dev_name string) {
 	// accept input to bridge
-	cmd2 := exec.Command("iptables", "-A", "FORWARD", "-i", "eth0", "-o", dev_name, "-j", "ACCEPT")
+	cmd2 := exec.Command("iptables", "-A", "FORWARD", "-i", karakuripkgs.HOST_NIC, "-o", dev_name, "-j", "ACCEPT")
 	if err := cmd2.Run(); err != nil {
 		panic(err)
 	}
 	// accept output to bridge
-	cmd3 := exec.Command("iptables", "-A", "FORWARD", "-o", "eth0", "-i", dev_name, "-j", "ACCEPT")
+	cmd3 := exec.Command("iptables", "-A", "FORWARD", "-o", karakuripkgs.HOST_NIC, "-i", dev_name, "-j", "ACCEPT")
 	if err := cmd3.Run(); err != nil {
 		panic(err)
 	}
@@ -91,12 +91,12 @@ func allowContainerTrafficRule(dev_name string) {
 
 func deleteContainerTrafficRule(dev_name string) {
 	// delete rule input to bridge
-	cmd2 := exec.Command("iptables", "-D", "FORWARD", "-i", "eth0", "-o", dev_name, "-j", "ACCEPT")
+	cmd2 := exec.Command("iptables", "-D", "FORWARD", "-i", karakuripkgs.HOST_NIC, "-o", dev_name, "-j", "ACCEPT")
 	if err := cmd2.Run(); err != nil {
 		panic(err)
 	}
 	// delete rule output to bridge
-	cmd3 := exec.Command("iptables", "-D", "FORWARD", "-o", "eth0", "-i", dev_name, "-j", "ACCEPT")
+	cmd3 := exec.Command("iptables", "-D", "FORWARD", "-o", karakuripkgs.HOST_NIC, "-i", dev_name, "-j", "ACCEPT")
 	if err := cmd3.Run(); err != nil {
 		panic(err)
 	}
