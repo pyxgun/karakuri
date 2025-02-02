@@ -138,15 +138,11 @@ func createFifo(fifo_path string) {
 	}
 }
 
-func openFifo(fifo_path string) {
+func waitParant(fifo_path string) {
 	_, err := unix.Open(fifo_path+"/exec.fifo", unix.O_WRONLY|unix.O_CLOEXEC, 0)
 	if err != nil {
 		panic(err)
 	}
-}
-
-func waitParant(fifo_path string) {
-	openFifo(fifo_path)
 }
 
 func startChild(fifo_path string) {
