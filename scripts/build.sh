@@ -1,6 +1,8 @@
 #!/bin/bash
 
-mkdir ./bin
+if [ ! -d ./bin ]; then
+    mkdir ./bin
+fi
 
 echo "Build Low-level Container Runtime..."
 sh ./scripts/futaba/build.sh
