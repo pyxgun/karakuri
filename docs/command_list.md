@@ -117,7 +117,59 @@ Show container logs
 
 
 ## Image operations
+The operations related to image are as follows:
+| Operation | Description |
+| --------- | ----------- |
+| [`images`](#images) | Show images |
+| [`pull`](#pull) | Pull image |
+| [`rmi`](#pull) | Delete image |
+| [`build`](#build) | Build image |
+
+### `images`
+Show images
+* No options available
+
+### `pull`
+Pull image
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --image | [repositry]:[tag] | yes | Specify name of a image | --image=alpine:latest |
+| --os | [os]:[arch] | no | Specify image's os/archtecture | --os=linux:amd64 |
+| --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
+
+### `rmi`
+Delete image
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --id | [container_id] | yes | Specify image ID | --id=b0c9d60fc5e3 |
+
+### `build`
+Build image
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --name | [repositry]:[tag] | yes | Specify name of a image | --name=my_app:local |
+
 
 ## Namespace operations
+The operations related to Namespace are as follows:
+| Operation | Description |
+| --------- | ----------- |
+| [`ns`](#ns) | Show namespace list |
+| [`createns`](#createns) | Create namespace |
+| [`rmns`](#rmns) | Delete namespace |
 
-## Other
+### `ns`
+Show namespace list
+* No options available
+
+### `createns`
+Create namespace
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --name | [namespace] | yes | Specify name of namespace | --name=sandbox |
+
+### `rmns`
+Delete namespace
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --name | [namespace] | yes | Specify name of namespace | --name=sandbox |
