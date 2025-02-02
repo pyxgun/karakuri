@@ -79,7 +79,7 @@ type SpecNetwork struct {
 }
 
 type ConfigSpec struct {
-	Version  string      `json:"karakuriVersion"`
+	Version  string      `json:"version"`
 	Process  SpecProcess `json:"process"`
 	Cgroup   SpecCgroup  `json:"cgroup"`
 	Root     SpecRoot    `json:"root"`
@@ -129,7 +129,7 @@ func CreateSpecFile(spec_flag SpecFlag) {
 
 	// create json object
 	config_spec := ConfigSpec{
-		Version: KARAKURI_VERSION,
+		Version: FUTABA_VERSION,
 		Process: SpecProcess{
 			Args: args,
 			Pid:  0,
