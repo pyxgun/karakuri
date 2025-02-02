@@ -2,6 +2,8 @@ module karakuri
 
 replace karakuripkgs => ../../../../pkgs
 
+replace futaba => ../futaba
+
 replace hitoha => ../hitoha
 
 go 1.22.2
@@ -9,6 +11,11 @@ go 1.22.2
 require (
 	github.com/google/uuid v1.6.0
 	hitoha v0.0.0-00010101000000-000000000000
+)
+
+require (
+	futaba v0.0.0-00010101000000-000000000000 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 )
 
 require (
