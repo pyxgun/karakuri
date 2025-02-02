@@ -2,6 +2,7 @@ package hitoha
 
 import (
 	"encoding/json"
+	"futaba"
 	"karakuripkgs"
 	"os"
 	"os/exec"
@@ -10,6 +11,37 @@ import (
 const (
 	INIT_FLAG = "/tmp/karakuri_init"
 )
+
+func setupDirectory() {
+	if _, stat := os.Stat(karakuripkgs.FUTABA_ROOT); stat != nil {
+		if err := os.MkdirAll(karakuripkgs.FUTABA_ROOT, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+	if _, stat := os.Stat(karakuripkgs.HITOHA_ROOT); stat != nil {
+		if err := os.MkdirAll(karakuripkgs.HITOHA_ROOT, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+	if _, stat := os.Stat(karakuripkgs.IMAGE_ROOT); stat != nil {
+		if err := os.MkdirAll(karakuripkgs.IMAGE_ROOT, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+
+	if _, stat := os.Stat(karakuripkgs.HITOHA_CONTAINER_LIST); stat != nil {
+		newContainerList()
+	}
+	if _, stat := os.Stat(karakuripkgs.HITOHA_IMAGE_LIST); stat != nil {
+		newImageList()
+	}
+	if _, stat := os.Stat(karakuripkgs.HITOHA_NAMESPACE_LIST); stat != nil {
+		createNamespaceList()
+	}
+	if _, stat := os.Stat(karakuripkgs.FUTABA_CONTAINER_LIST); stat != nil {
+		futaba.NewContainerList()
+	}
+}
 
 func setupNetworkInterface() {
 	var bytes []byte
@@ -105,6 +137,8 @@ func createInitFile() {
 
 func SetupEnvironment() {
 	if !checkInitStatus() {
+		// setup directory
+		setupDirectory()
 		// setup network environment
 		setupNetworks()
 		// create init file

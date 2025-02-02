@@ -425,6 +425,21 @@ func StopContainer(request_param RequestStopContainer) {
 	}
 }
 
+func StopAllContaier(namespace string) {
+	res, container_list := requestShowContainer(namespace)
+	if res != "success" {
+		fmt.Println("Namespace: \"" + namespace + "\" is not exists.")
+		return
+	}
+
+	for _, entry := range container_list.List {
+		StopContainer(RequestStopContainer{
+			Id:   entry.Id,
+			Name: "none",
+		})
+	}
+}
+
 func RestartContainer(request_param RequsetRestartContainer) {
 	// stop container
 	StopContainer(RequestStopContainer{

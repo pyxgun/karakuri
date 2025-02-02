@@ -1,0 +1,10 @@
+[Unit]
+Description = karakuri's high level container runtime
+
+[Service]
+ExecStart = /bin/hitoha
+Restart = always
+Type = simple
+
+[Install]
+WantedBy = multi-user.target

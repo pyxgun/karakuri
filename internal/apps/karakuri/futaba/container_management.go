@@ -38,7 +38,7 @@ func newContainerDirectory(spec karakuripkgs.ConfigSpec) {
 	}
 }
 
-func newContainerList() {
+func NewContainerList() {
 	var container_list ContainerList
 	file, _ := json.MarshalIndent(container_list, "", "  ")
 	if err := os.WriteFile(karakuripkgs.FUTABA_CONTAINER_LIST, file, os.ModePerm); err != nil {
@@ -50,7 +50,7 @@ func addContainerList(spec karakuripkgs.ConfigSpec) {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.FUTABA_CONTAINER_LIST)
 	if err != nil {
-		newContainerList()
+		NewContainerList()
 		bytes, _ = os.ReadFile(karakuripkgs.FUTABA_CONTAINER_LIST)
 	}
 
@@ -100,16 +100,6 @@ func CreateContainer(spec string) string {
 
 	// create fifo
 	createFifo(config_spec.Fifo)
-
-	// retrieve resource limit
-	cpu_max := config_spec.Cgroup.Cpu.Max
-	mem_max := config_spec.Cgroup.Memory.Max
-	// create cgroup
-	createCgroup(container_id)
-	// set cpu limit
-	setCpuLimit(container_id, cpu_max)
-	// set memory limit
-	setMemoryLimit(container_id, mem_max)
 
 	return container_id
 }

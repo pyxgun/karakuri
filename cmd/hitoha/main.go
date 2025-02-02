@@ -43,5 +43,5 @@ func main() {
 	router.HandleFunc("/namespace/delete/{namespace}", hitoha.DeleteNamespace).Methods("DELETE")
 
 	// execute server
-	http.ListenAndServe("127.0.0.1:9876", router)
+	http.ListenAndServe("127.0.0.1:9806", router)
 }
