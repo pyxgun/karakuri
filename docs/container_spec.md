@@ -1,5 +1,4 @@
 # Container Specification
-## Introduction
 Container created via `karakuri` is run based on a single configuration file. This configuration file is called *SpecFile* and is created by `futaba spec` command. *SpecFile* includes layer information, standard filesystem setup, resource setup, port mapping, network, and information abount container entrypoint.  
 
 *SpecFile* can be created via `futaba spec` command, but since the `futaba` is not intended for stand-alone use, it highly recommended to cerate *SpecFile* via `karakuri create` command for actual container operations.  
