@@ -78,6 +78,13 @@ func setupNat() {
 	}
 }
 
+func setupIpForward() {
+	cmd := exec.Command("/sbin/sysctl", "-w", "net.ipv4.ip_forward=1")
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
+}
+
 func setupBridgeTrafficRule() {
 	// iptables -I FORWARD -m physdev --physdev-is-bridged -j ACCEPT
 	cmd := exec.Command("iptables", "-I", "FORWARD", "-m", "physdev", "--physdev-is-bridged", "-j", "ACCEPT")
@@ -121,6 +128,8 @@ func setupNetworks() {
 	setupBridgeTrafficRule()
 	// setup syste-mod traffic to container
 	setupSystemModTrafficRule()
+	// setup ip forwarding
+	setupIpForward()
 }
 
 func createInitFile() {
