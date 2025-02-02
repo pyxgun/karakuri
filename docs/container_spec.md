@@ -64,7 +64,7 @@ The following file systems are specified by default to ensure proper execution o
 | /sys | sysfs | nosuid,noexec,nodev,ro |
 | /sys/fs/cgroup | cgroup2 | n/a |
 | /dev | tmpfs | nosuid,mode=755,size=65536k |
-| /dev/pts | devpts | nosuod,noexec,rw,newinstance,mode=620,gid=5,ptmxmode=0666 |
+| /dev/pts | devpts | nosuid,noexec,rw,newinstance,mode=620,gid=5,ptmxmode=0666 |
 | /dev/mqueue | mqueue | nosuid,noexec,nodev,rw |
 | /dev/shm | tmpfs | nosuid,noexec,nodev,rw,mode=1777,size=65536k |
 
