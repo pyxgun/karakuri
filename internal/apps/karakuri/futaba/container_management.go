@@ -101,16 +101,6 @@ func CreateContainer(spec string) string {
 	// create fifo
 	createFifo(config_spec.Fifo)
 
-	// retrieve resource limit
-	cpu_max := config_spec.Cgroup.Cpu.Max
-	mem_max := config_spec.Cgroup.Memory.Max
-	// create cgroup
-	createCgroup(container_id)
-	// set cpu limit
-	setCpuLimit(container_id, cpu_max)
-	// set memory limit
-	setMemoryLimit(container_id, mem_max)
-
 	return container_id
 }
 

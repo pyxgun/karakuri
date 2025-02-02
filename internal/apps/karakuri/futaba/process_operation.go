@@ -224,6 +224,15 @@ func StartContainer(id string, terminal bool) {
 	// setup network interface
 	setupContainerNetwork(pid, config_spec.Network)
 
+	// retrieve resource limit
+	cpu_max := config_spec.Cgroup.Cpu.Max
+	mem_max := config_spec.Cgroup.Memory.Max
+	// create cgroup
+	createCgroup(id)
+	// set cpu limit
+	setCpuLimit(id, cpu_max)
+	// set memory limit
+	setMemoryLimit(id, mem_max)
 	// set pid to cgroup
 	setCgourpPid(id, pid)
 
@@ -286,7 +295,7 @@ func ExecContainer(id string, terminal bool, command string) {
 	cmd := strings.Split(command, ",")
 
 	pid := config_spec.Process.Pid
-	args := []string{"-t", strconv.Itoa(pid), "-m", "-u", "-i", "-n", "-p"}
+	args := []string{"-t", strconv.Itoa(pid), "--all"}
 	args = append(args, cmd...)
 	nsenter := exec.Command("nsenter", args...)
 

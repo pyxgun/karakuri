@@ -10,7 +10,7 @@ import (
 func createCgroup(container_id string) {
 	cmd := exec.Command("cgcreate", "-g", "memory,cpu:"+container_id)
 	if err := cmd.Run(); err != nil {
-		panic(err)
+		return
 	}
 }
 
