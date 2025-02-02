@@ -1,5 +1,5 @@
 package karakuripkgs
 
 const (
-	KARAKURI_VERSION = "0.1.4"
+	KARAKURI_VERSION = "0.1.5"
 )
