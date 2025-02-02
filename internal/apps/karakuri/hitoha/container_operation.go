@@ -131,7 +131,7 @@ func StartContainer(id string) ResponseContainerInfo {
 	if container_status == "created" || container_status == "stoped" {
 		// update status: running
 		container_info := UpdateContainerStatus(id, "running")
-		return createResponseContainerInfo("success", container_info, "container start success.")
+		return createResponseContainerInfo("success", container_info, "container: "+id+" start success.")
 	} else {
 		return createResponseContainerInfo("error", ContainerInfo{}, "container: "+id+" is already up and running.")
 	}
@@ -197,7 +197,7 @@ func DeleteContainer(id string) ResponseDeleteContainer {
 		// free address
 		freeAddress(id)
 
-		return createResponseDeleteContainer("success", id, "container delete success.")
+		return createResponseDeleteContainer("success", id, "container: "+id+" delete success.")
 	} else {
 		return createResponseDeleteContainer("error", id, "container: "+id+" is still running.")
 	}

@@ -7,6 +7,7 @@ import (
 	"io"
 	"karakuripkgs"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -87,7 +88,8 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -112,7 +114,8 @@ func requestContainerId(name string) (result bool, id string, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -137,7 +140,8 @@ func requestStartContainer(id string) (result bool, meessage string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -172,7 +176,8 @@ func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -197,7 +202,8 @@ func requestExecContainer(id string) (result bool, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -221,7 +227,8 @@ func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -245,7 +252,8 @@ func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -270,7 +278,8 @@ func requestStopContainer(id string) (result bool, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -294,7 +303,8 @@ func requestDeleteContainer(id string) (result bool, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -312,6 +322,25 @@ func requestDeleteContainer(id string) (result bool, message string) {
 
 // ----------------------------------
 
+func retrieveContainerId(id string, name string) string {
+	if len(id) == 0 && name == "none" {
+		fmt.Println("Must specify Container ID via --id or Name via --name.")
+		return ""
+	}
+
+	if len(id) != 0 {
+		return id
+	} else {
+		// retrieve container id
+		if res, resp_id, message := requestContainerId(name); !res {
+			fmt.Println(message)
+			return ""
+		} else {
+			return resp_id
+		}
+	}
+}
+
 func CreateContainer(request_param RequestCreateContainer) {
 	if res, message := requestCreateContainer(request_param); !res {
 		fmt.Println(message)
@@ -321,15 +350,9 @@ func CreateContainer(request_param RequestCreateContainer) {
 }
 
 func StartContainer(request_param RequestStartContainer) {
-	container_id := request_param.Id
-	if request_param.Name != "none" {
-		// retrieve container id
-		if res, resp_id, message := requestContainerId(request_param.Name); !res {
-			fmt.Println(message)
-			return
-		} else {
-			container_id = resp_id
-		}
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
 	}
 	if res, message := requestStartContainer(container_id); !res {
 		fmt.Println(message)
@@ -348,7 +371,7 @@ func StartContainer(request_param RequestStartContainer) {
 			SetupPortForwarding("delete", config_spec.Network)
 		} else {
 			hitoha.UpdateContainerStatus(container_id, "running")
-			fmt.Println("container start success.")
+			fmt.Println("container: " + container_id + " start success.")
 		}
 	}
 }
@@ -383,15 +406,9 @@ func RunContainer(request_param RequestRunContainer) {
 }
 
 func ExecContainer(request_param RequestExecContainer) {
-	container_id := request_param.Id
-	if request_param.Name != "none" {
-		// retrieve container id
-		if res, resp_id, message := requestContainerId(request_param.Name); !res {
-			fmt.Println(message)
-			return
-		} else {
-			container_id = resp_id
-		}
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
 	}
 	if res, message := requestExecContainer(container_id); !res {
 		fmt.Println(message)
@@ -403,15 +420,9 @@ func ExecContainer(request_param RequestExecContainer) {
 }
 
 func StopContainer(request_param RequestStopContainer) {
-	container_id := request_param.Id
-	if request_param.Name != "none" {
-		// retrieve container id
-		if res, resp_id, message := requestContainerId(request_param.Name); !res {
-			fmt.Println(message)
-			return
-		} else {
-			container_id = resp_id
-		}
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
 	}
 	if res, message := requestStopContainer(container_id); !res {
 		fmt.Println(message)
@@ -441,15 +452,19 @@ func StopAllContaier(namespace string) {
 }
 
 func RestartContainer(request_param RequsetRestartContainer) {
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
+	}
 	// stop container
 	StopContainer(RequestStopContainer{
-		Id:   request_param.Id,
-		Name: request_param.Name,
+		Id:   container_id,
+		Name: "none",
 	})
 	// start container
 	StartContainer(RequestStartContainer(request_param))
 
-	fmt.Println("restart success")
+	fmt.Println("container: " + container_id + " restart success")
 }
 
 func ShowContainerList(namespace string) {
@@ -463,15 +478,9 @@ func ShowContainerList(namespace string) {
 }
 
 func ShowContainerSpec(request_param RequestShowContainerSpec) {
-	container_id := request_param.Id
-	if request_param.Name != "none" {
-		// retrieve container id
-		if res, resp_id, message := requestContainerId(request_param.Name); !res {
-			fmt.Println(message)
-			return
-		} else {
-			container_id = resp_id
-		}
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
 	}
 	res, spec := requestShowContainerSpec(container_id)
 	if !res {
@@ -482,15 +491,9 @@ func ShowContainerSpec(request_param RequestShowContainerSpec) {
 }
 
 func DeleteContainer(request_param RequestDeleteContainer) {
-	container_id := request_param.Id
-	if request_param.Name != "none" {
-		// retrieve container id
-		if res, resp_id, message := requestContainerId(request_param.Name); !res {
-			fmt.Println(message)
-			return
-		} else {
-			container_id = resp_id
-		}
+	container_id := retrieveContainerId(request_param.Id, request_param.Name)
+	if container_id == "" {
+		return
 	}
 	if res, message := requestDeleteContainer(container_id); !res {
 		fmt.Println(message)
@@ -512,7 +515,8 @@ func requestShowImage() (string, hitoha.ImageList) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -538,7 +542,8 @@ func requestPullImage(image_tag string, os_arch string, repositry string) (resul
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot find " + image_tag + " from registry.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -567,7 +572,8 @@ func requestDeleteImage(id string) bool {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -624,7 +630,8 @@ func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -648,7 +655,8 @@ func requestCreateNamespace(namespace string) (result bool, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
@@ -672,7 +680,8 @@ func requestDeleteNamespace(namespace string) (result bool, message string) {
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	byte_array, _ := io.ReadAll(resp.Body)
