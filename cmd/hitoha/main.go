@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"hitoha"
+	"karakuripkgs"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
+	fmt.Println("hitoha version " + karakuripkgs.HITOHA_VERSION)
 	// initial setup
 	hitoha.SetupEnvironment()
 
@@ -43,5 +46,6 @@ func main() {
 	router.HandleFunc("/namespace/delete/{namespace}", hitoha.DeleteNamespace).Methods("DELETE")
 
 	// execute server
+	fmt.Println("Listen on \"127.0.0.1:9806\" ...")
 	http.ListenAndServe("127.0.0.1:9806", router)
 }

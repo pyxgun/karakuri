@@ -21,12 +21,13 @@ Create container
 | --image | [repositry]:[tag] | yes | Specify name of a image | --image=alpine:latest |
 | --name | [container_name] | no | Specify container name | --name=my_container |
 | --port | [host_port]:[container_port]:[protocol] | no | Map port `[host_port]` to `[container_port]/[protocol]` in the container (*1) | --port=8080:80:tcp |
-| --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container | --mount=/mnt/data:/data |
+| --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container (*2) | --mount=/mnt/data:/data |
 | --cmd | [arg_1],[arg2],... | no | Override entrypoint command | --cmd=sleep,100 |
 | --ns | [namespace] | no | Specify the namespace to which the container belongs | --ns=sandbox |
 | --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
 
-*1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`
+*1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`  
+*2: If you want to mount multiple directory, enter the directories separated by commas. `--mount=/mnt/data:/data,/home/user:/home`
 
 ### `start`
 Start container
@@ -46,12 +47,14 @@ Run container (`create`+`start`)
 | --name | [container_name] | no | Specify container name | --name=my_container |
 | --rm | n/a | no | Automatically delete at exit of container | --rm |
 | --port | [host_port]:[container_port]:[protocol] | no | Map port `[host_port]` to `[container_port]/[protocol]` in the container (*1) | --port=8080:80:tcp |
-| --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container | --mount=/mnt/data:/data |
+| --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container (*2) | --mount=/mnt/data:/data |
 | --cmd | [arg_1],[arg2],... | no | Override entrypoint command | --cmd=sleep,100 |
 | --ns | [namespace] | no | Specify the namespace to which the container belongs | --ns=sandbox |
 | --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
 
-*1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`
+*1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`  
+*2: If you want to mount multiple directory, enter the directories separated by commas. `--mount=/mnt/data:/data,/home/user:/home`
+
 
 ### `exec`
 Execute command in container
