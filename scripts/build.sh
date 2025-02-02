@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir ./bin
+
 echo "Build Low-level Container Runtime..."
 sh ./scripts/futaba/build.sh
 echo "Done."
