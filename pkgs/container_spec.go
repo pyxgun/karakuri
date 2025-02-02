@@ -245,25 +245,28 @@ func CreateSpecFile(spec_flag SpecFlag) {
 
 	// host mount
 	if spec_flag.Mount != "" {
-		mount := strings.Split(spec_flag.Mount, ":")
-		source := mount[0]
-		destination := mount[1]
-		// set
-		config_spec.Mounts = append(
-			config_spec.Mounts,
-			SpecMount{
-				Destination: destination,
-				MountType:   "",
-				Source:      source,
-				Options: []string{
-					"bind",
-				},
-			})
+		mounts := strings.Split(spec_flag.Mount, ",")
+		for _, entry := range mounts {
+			mount := strings.Split(entry, ":")
+			source := mount[0]
+			destination := mount[1]
+			// set
+			config_spec.Mounts = append(
+				config_spec.Mounts,
+				SpecMount{
+					Destination: destination,
+					MountType:   "",
+					Source:      source,
+					Options: []string{
+						"bind",
+					},
+				})
+		}
 	}
 
 	// port forward
 	if spec_flag.PortForward != "" {
-		ports := strings.Split(spec_flag.PortForward, "-")
+		ports := strings.Split(spec_flag.PortForward, ",")
 		for _, entry := range ports {
 			port := strings.Split(entry, ":")
 			host_port, _ := strconv.Atoi(port[0])

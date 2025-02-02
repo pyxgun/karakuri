@@ -194,6 +194,7 @@ func main() {
 				cli.StringFlag{
 					Name:        "cmd",
 					Value:       "",
+					Required:    true,
 					Destination: &flag_command,
 				},
 			},
