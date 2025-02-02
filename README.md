@@ -1,6 +1,7 @@
-# Karakuri
+# <img src="./docs/images/karakuri_icon.png">
+
 ## Introduction
-`karakuri` is a platform for managing and running containers.  
+`karakuri` is a container runtime.  
 This platform consists of three components.
 1. `karakuri`  
    A CLI tool that provides the ability to send requests to high-level container runtime.
