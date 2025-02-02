@@ -37,9 +37,9 @@ This message shows that your installation appears to be working correctly.
   :
 ```
 
-## Using karakuri
+## Quick start
 The following is how to run a new container and delete container.  
-### 1. Pull image (Optional)
+### Pull image (Optional)
 Retrieve an image from registry.
 This operation is optional because if an image that doesn't exist local is specified when `create` command is executed, the image is automatically retrieved.
 ```
@@ -54,7 +54,7 @@ REPOSITORY      | TAG           | ID
 alpine          | latest        | b0c9d60fc5e3
 ```
 
-### 2. Create container
+### Create container
 Create a container.
 ```
 $ sudo karakuri create --name=mycontainer --image=alpine
@@ -68,7 +68,7 @@ CONTAINER ID | Name        | IMAGE  | STATUS  | PORT | COMMAND
 52e579b39313 | mycontainer | alpine | created |      | /bin/sh                         
 ```
 
-### 3. Start container
+### Start container
 Start the container.
 ```
 $ sudo karakuri start --name=mycontainer --it
@@ -77,7 +77,7 @@ $ sudo karakuri start --name=mycontainer --it
 ```
 `--it` option is specified when executing commands that require standard output, such as shell and other interactive tools.
 
-### 4. Delete container
+### Delete container
 Delete the container
 ```
 $ sudo karakuri rm --name=mycontainer
