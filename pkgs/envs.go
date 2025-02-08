@@ -42,7 +42,6 @@ const (
 
 	// modules
 	KARAKURI_MOD_DNS      = KARAKURI_MOD_ROOT + "/dns"
-	KARAKURI_MOD_INGRESS  = KARAKURI_MOD_ROOT + "/ingress"
 	KARAKURI_MOD_REGISTRY = KARAKURI_MOD_ROOT + "/registry"
 )
 

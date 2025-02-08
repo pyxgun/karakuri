@@ -45,17 +45,6 @@ func NewModList() {
 		},
 	)
 
-	// module: ingress
-	mod_list_data.List = append(mod_list_data.List,
-		ModInfo{
-			Name:        "ingress",
-			ImageName:   "ingress:system-mod",
-			Path:        karakuripkgs.KARAKURI_MOD_ROOT + "/ingress",
-			Status:      "disable",
-			Description: "external access controler",
-		},
-	)
-
 	// module: registry
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
