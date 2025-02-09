@@ -57,3 +57,68 @@ jobs:
             sh ./scripts/futaba/build.sh
             sh ./scripts/hitoha/build.sh
             sh ./scripts/karakuri/build.sh
+
+    exec_test:
+      runs-on: ubuntu-latest
+      timeout-minutes: 5
+      needs: [test, build]
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: '>=1.22.0'
+            cache: false
+        
+        - name: Setup utilities
+          run: |
+            sudo apt update
+            sudo apt install -y cgroup-tools iptables
+
+        - name: OS Version
+          run: cat /etc/os-release
+
+        - name: Go Version
+          run: go version
+
+        - name: Build
+          run: |
+            mkdir ./bin
+            sh ./scripts/futaba/build.sh
+            sh ./scripts/hitoha/build.sh
+            sh ./scripts/karakuri/build.sh
+            sudo cp ./bin/* /bin
+        
+        - name: Start Karakuri Daemon
+          run: |
+            sudo hitoha &
+        
+        - name: Show NICs
+          run: ip a
+        
+        - name: Pull Image
+          run: |
+            sudo karakuri pull --image nginx:alpine
+            sudo karakuri images
+        
+        - name: Create Container
+          run: |
+            sudo karakuri createe --name test_container --image nginx:alpine
+            sudo karakuri ls
+        
+        - name: Start Container
+          run: |
+            sudo karakuri start --name test_container
+            sudo karakuri ls
+        
+        - name: Stop Container
+          run: |
+            sudo karakuri stop --name test_container
+            sudo karakuri ls
+        
+        - name: Remove Container
+          run: |
+            sudo karakuri rm --name test_container
+            sudo karakuri ls
