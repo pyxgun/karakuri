@@ -162,6 +162,11 @@ func main() {
 					Destination: &flag_repositry,
 				},
 				cli.StringFlag{
+					Name:        "restart",
+					Value:       "no",
+					Destination: &flag_restart,
+				},
+				cli.StringFlag{
 					Name:        "ns",
 					Value:       "none",
 					Destination: &flag_namespace,
@@ -182,6 +187,7 @@ func main() {
 					Cmd:       flag_command,
 					Repositry: flag_repositry,
 					Remove:    flag_rm,
+					Restart:   flag_restart,
 				})
 			},
 		},

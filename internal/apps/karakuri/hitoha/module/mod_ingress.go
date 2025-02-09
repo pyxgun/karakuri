@@ -168,7 +168,7 @@ func createIngressContainer(mod_info ModInfo) {
 		"--name", mod_info.Name,
 		"--image", mod_info.ImageName,
 		"--port", "4443:443:tcp",
-		"--restart", "always",
+		"--restart", "on-boot",
 		"--ns", "system-mod",
 	}
 	create := exec.Command("karakuri", create_args...)

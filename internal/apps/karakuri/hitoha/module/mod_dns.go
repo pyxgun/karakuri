@@ -133,7 +133,7 @@ func createDnsContainer(mod_info ModInfo) {
 		"--name", mod_info.Name,
 		"--image", mod_info.ImageName,
 		"--mount", mod_info.Path + "/conf:/conf",
-		"--restart", "always",
+		"--restart", "on-boot",
 		"--ns", "system-mod",
 	}
 	create := exec.Command("karakuri", create_args...)

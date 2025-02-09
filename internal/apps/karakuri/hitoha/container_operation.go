@@ -174,6 +174,7 @@ func RunContainer(params ParamsRunContainer) ResponseRunContainer {
 		Repositry: params.Repositry,
 		Name:      params.Name,
 		Namespace: params.Namespace,
+		Restart:   params.Restart,
 	})
 	if resp.Result != "success" {
 		return createResponseRunContainer(resp.Result, "", resp.Message)

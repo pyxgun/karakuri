@@ -28,7 +28,7 @@ func createRegistryContainer(mod_info ModInfo) {
 		"--image", mod_info.ImageName,
 		"--mount", mod_info.Path + "/data:/var/lib/registry",
 		"--port", "5000:5000:tcp",
-		"--restart", "always",
+		"--restart", "on-boot",
 		"--ns", "system-mod",
 	}
 	create := exec.Command("karakuri", create_args...)

@@ -135,6 +135,8 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 	if namespace == "none" {
 		namespace = "default"
 	}
+	// restart
+	restart := params["restart"]
 
 	//resp := RunContainer(image, port, mount, cmd, repositry)
 	resp := RunContainer(ParamsRunContainer{
@@ -145,6 +147,7 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 		Mount:     mount,
 		Cmd:       cmd,
 		Repositry: repositry,
+		Restart:   restart,
 	})
 
 	json.NewEncoder(w).Encode(resp)
