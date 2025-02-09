@@ -41,17 +41,8 @@ $ cd karakuri
 $ sh scripts/build.sh
 ```
 
-### Running the test
-```
-$ sudo karakuri run --rm --it --image=hello-world
-
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
-  :
-```
-
 ## Quick start
-The following is how to run a new container and delete container.  
+The following is how to run container lifecycle.  
 ### Pull image (Optional)
 Retrieve an image from registry.
 This operation is optional because if an image that doesn't exist local is specified when `create` command is executed, the image is automatically retrieved.

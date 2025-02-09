@@ -73,7 +73,7 @@ type RequestShowContainerSpec struct {
 // request create container
 func requestCreateContainer(request_param RequestCreateContainer) (result bool, message string) {
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
-	new_command := strings.Replace(request_param.Cmd, "/", "-", -1)
+	new_command := strings.Replace(request_param.Cmd, "/", "!", -1)
 	url := karakuripkgs.SERVER +
 		"/container/create/" +
 		request_param.Image + "/" +
