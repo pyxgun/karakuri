@@ -22,7 +22,7 @@ func main() {
 	router.HandleFunc("/container/spec/{id}", hitoha.GetContainerSpec).Methods("GET")
 	router.HandleFunc("/container/getid/{name}", hitoha.GetContainerId).Methods("GET")
 	// POST
-	router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{repositry}/{name}/{namespace}", hitoha.PostCreateContainer).Methods("POST")
+	router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{repositry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
 	router.HandleFunc("/container/start/{id}", hitoha.PostStartContainer).Methods("POST")
 	router.HandleFunc("/container/run/{image}/{port}/{mount}/{cmd}/{repositry}/{name}/{namespace}", hitoha.PostRunContainer).Methods("POST")
 	router.HandleFunc("/container/exec/{id}", hitoha.PostExecContainer).Methods("POST")

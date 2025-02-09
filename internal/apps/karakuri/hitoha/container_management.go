@@ -23,6 +23,7 @@ type ContainerInfo struct {
 	Status    string     `json:"status"`
 	Port      []PortInfo `json:"port"`
 	Pid       int        `json:"pid"`
+	Restart   string     `json:"restart"`
 }
 
 type ContainerList struct {
@@ -78,6 +79,7 @@ func addNewContainer(config_spec karakuripkgs.ConfigSpec, image string, name str
 		Status:    "created",
 		Port:      ports,
 		Pid:       config_spec.Process.Pid,
+		Restart:   config_spec.Restart,
 	}
 	container_list_data.List = append(container_list_data.List, container_info)
 
@@ -118,6 +120,7 @@ func UpdateContainerStatus(id string, status string) ContainerInfo {
 				Status:    status,
 				Port:      entry.Port,
 				Pid:       config_spec.Process.Pid,
+				Restart:   entry.Restart,
 			}
 			new_container_list_data.List = append(new_container_list_data.List, new_container_info)
 		} else {
@@ -191,6 +194,7 @@ func syncContainerList() {
 			Status:    entry.Status,
 			Port:      entry.Port,
 			Pid:       entry.Pid,
+			Restart:   entry.Restart,
 		}
 		new_container_list_data.List = append(new_container_list_data.List, new_container_info)
 	}
@@ -303,4 +307,28 @@ func retrieveContainerId(name string) ResponseContainerId {
 		}
 	}
 	return createResponseContainerId("error", "", "no such container, name: "+name)
+}
+
+func autoStartContainer() {
+	var bytes []byte
+	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
+	if err != nil {
+		panic(err)
+	}
+
+	var container_list_data ContainerList
+	if err := json.Unmarshal(bytes, &container_list_data); err != nil {
+		panic(err)
+	}
+
+	for _, entry := range container_list_data.List {
+		if entry.Restart == "always" {
+			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + entry.Id)
+			karakuripkgs.RuntimeStart(entry.Id, false)
+			UpdateContainerStatus(entry.Id, "running")
+			if config_spec.Network.Port != nil {
+				SetupPortForwarding("add", config_spec.Network)
+			}
+		}
+	}
 }

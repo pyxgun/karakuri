@@ -190,6 +190,10 @@ func SetupEnvironment() {
 		changeContainerStatusToStop()
 		// setup module
 		karakuri_mod.SetupModules()
+
+		// start restart: always container
+		autoStartContainer()
+
 		// create init file
 		createInitFile()
 	}

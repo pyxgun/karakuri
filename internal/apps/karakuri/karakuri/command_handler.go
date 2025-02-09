@@ -20,6 +20,7 @@ type RequestCreateContainer struct {
 	Mount     string
 	Cmd       string
 	Repositry string
+	Restart   string
 }
 
 type RequestStartContainer struct {
@@ -82,7 +83,8 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 		new_command + "/" +
 		request_param.Repositry + "/" +
 		request_param.Name + "/" +
-		request_param.Namespace
+		request_param.Namespace + "/" +
+		request_param.Restart
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -315,7 +317,7 @@ func StartContainer(request_param RequestStartContainer) {
 	} else {
 		// setup port forward
 		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-		SetupPortForwarding("add", config_spec.Network)
+		hitoha.SetupPortForwarding("add", config_spec.Network)
 
 		// execute runtime: start
 		karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
@@ -324,7 +326,7 @@ func StartContainer(request_param RequestStartContainer) {
 		if request_param.Terminal {
 			hitoha.UpdateContainerStatus(container_id, "stopped")
 			// delete port forward
-			SetupPortForwarding("delete", config_spec.Network)
+			hitoha.SetupPortForwarding("delete", config_spec.Network)
 		} else {
 			hitoha.UpdateContainerStatus(container_id, "running")
 			fmt.Println("container: " + container_id + " start success.")
@@ -340,7 +342,7 @@ func RunContainer(request_param RequestRunContainer) {
 
 	// setup port forward
 	config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-	SetupPortForwarding("add", config_spec.Network)
+	hitoha.SetupPortForwarding("add", config_spec.Network)
 
 	// execute runtime: start
 	karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
@@ -348,7 +350,7 @@ func RunContainer(request_param RequestRunContainer) {
 	if request_param.Terminal {
 		hitoha.UpdateContainerStatus(container_id, "stopped")
 		// delete port forward
-		SetupPortForwarding("delete", config_spec.Network)
+		hitoha.SetupPortForwarding("delete", config_spec.Network)
 		// delete container
 		if request_param.Remove {
 			DeleteContainer(RequestDeleteContainer{
@@ -386,7 +388,7 @@ func StopContainer(request_param RequestStopContainer) {
 		// setup port forward
 		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
 		// delete port forward
-		SetupPortForwarding("delete", config_spec.Network)
+		hitoha.SetupPortForwarding("delete", config_spec.Network)
 
 		fmt.Println(message)
 	}

@@ -219,7 +219,7 @@ func StartContainer(id string, terminal bool) {
 			},
 			{
 				ContainerID: 1,
-				HostID:      100000,
+				HostID:      1000,
 				Size:        65535,
 			},
 		},
@@ -231,7 +231,7 @@ func StartContainer(id string, terminal bool) {
 			},
 			{
 				ContainerID: 1,
-				HostID:      100000,
+				HostID:      1000,
 				Size:        65535,
 			},
 		},
