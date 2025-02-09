@@ -41,7 +41,7 @@ func setIpTables(mode string, host_port int, target_ip string, target_port int, 
 	}
 }
 
-func SetupPortForwarding(mode string, network karakuripkgs.SpecNetwork) {
+func ssSetupPortForwarding(mode string, network karakuripkgs.SpecNetwork) {
 	container_ip := network.Address
 	for _, entry := range network.Port {
 		host_port := entry.HostPort

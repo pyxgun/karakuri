@@ -128,7 +128,14 @@ func buildDnsImage(mod_info ModInfo) {
 }
 
 func createDnsContainer(mod_info ModInfo) {
-	create_args := []string{"create", "--name", mod_info.Name, "--image", mod_info.ImageName, "--mount", mod_info.Path + "/conf:/conf", "--ns", "system-mod"}
+	create_args := []string{
+		"create",
+		"--name", mod_info.Name,
+		"--image", mod_info.ImageName,
+		"--mount", mod_info.Path + "/conf:/conf",
+		"--restart", "always",
+		"--ns", "system-mod",
+	}
 	create := exec.Command("karakuri", create_args...)
 	if err := create.Run(); err != nil {
 		panic(err)

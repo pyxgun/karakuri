@@ -21,6 +21,7 @@ type SpecFlag struct {
 	Mount       string
 	PortForward string
 	EnvVars     string
+	Restart     string
 }
 
 type SpecEnv struct {
@@ -80,6 +81,7 @@ type SpecNetwork struct {
 type ConfigSpec struct {
 	Version  string      `json:"version"`
 	Process  SpecProcess `json:"process"`
+	Restart  string      `json:"restart"`
 	Cgroup   SpecCgroup  `json:"cgroup"`
 	Root     SpecRoot    `json:"root"`
 	Image    SpecImage   `json:"image"`
@@ -142,6 +144,7 @@ func CreateSpecFile(spec_flag SpecFlag) {
 				Max: "1024M",
 			},
 		},
+		Restart: spec_flag.Restart,
 		Root: SpecRoot{
 			Path: root_path,
 		},

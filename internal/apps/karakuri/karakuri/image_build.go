@@ -214,6 +214,7 @@ func buildProcCreateContainer(build_book BuildBook, image_id string) string {
 		Port:      "none",
 		Mount:     "none",
 		Repositry: "public",
+		Restart:   "no",
 	})
 
 	var container_id string

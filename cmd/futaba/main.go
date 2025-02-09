@@ -177,6 +177,11 @@ func main() {
 					Name:        "env",
 					Destination: &spec_flag.EnvVars,
 				},
+				cli.StringFlag{
+					Name:        "restart",
+					Value:       "no",
+					Destination: &spec_flag.Restart,
+				},
 			},
 			Action: func(c *cli.Context) {
 				karakuripkgs.CreateSpecFile(spec_flag)
