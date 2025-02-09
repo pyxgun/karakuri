@@ -215,6 +215,11 @@ func StartContainer(id string, terminal bool) {
 			{
 				ContainerID: 0,
 				HostID:      os.Getuid(),
+				Size:        1,
+			},
+			{
+				ContainerID: 1,
+				HostID:      100000,
 				Size:        65535,
 			},
 		},
@@ -222,6 +227,11 @@ func StartContainer(id string, terminal bool) {
 			{
 				ContainerID: 0,
 				HostID:      os.Getgid(),
+				Size:        1,
+			},
+			{
+				ContainerID: 1,
+				HostID:      100000,
 				Size:        65535,
 			},
 		},
