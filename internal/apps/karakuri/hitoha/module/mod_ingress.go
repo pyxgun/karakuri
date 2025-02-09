@@ -24,15 +24,17 @@ RUN cp /conf/server.conf /etc/nginx/conf.d/
 
 CMD ["sh", "/script/entrypoint.sh"]
 `
-	fd, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/Karakurifile")
-	if err != nil {
-		panic(err)
-	}
-	defer fd.Close()
 
-	bytes := []byte(karakurifile)
-	if _, err := fd.Write(bytes); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/Karakurifile"); stat != nil {
+		fd, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/Karakurifile")
+		if err != nil {
+			panic(err)
+		}
+		defer fd.Close()
+		bytes := []byte(karakurifile)
+		if _, err := fd.Write(bytes); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -60,14 +62,16 @@ func createIngressModuleConfig() {
     proxy_read_timeout 130;
 }
 `
-	fd_1, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/conf/server.conf")
-	if err != nil {
-		panic(err)
-	}
-	defer fd_1.Close()
-	bytes_1 := []byte(server_conf)
-	if _, err := fd_1.Write(bytes_1); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/conf/server.conf"); stat != nil {
+		fd_1, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/conf/server.conf")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_1.Close()
+		bytes_1 := []byte(server_conf)
+		if _, err := fd_1.Write(bytes_1); err != nil {
+			panic(err)
+		}
 	}
 
 	// cert
@@ -92,23 +96,27 @@ DNS.1 = *.karakuri.container
 `
 	san_txt := "subjectAltName = DNS:*.karakuri.container"
 
-	fd_2, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/ssl.cnf")
-	if err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/ssl.cnf"); stat != nil {
+		fd_2, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/ssl.cnf")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_2.Close()
+		bytes_2 := []byte(ssl_conf)
+		if _, err := fd_2.Write(bytes_2); err != nil {
+			panic(err)
+		}
 	}
-	defer fd_2.Close()
-	bytes_2 := []byte(ssl_conf)
-	if _, err := fd_2.Write(bytes_2); err != nil {
-		panic(err)
-	}
-	fd_3, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/san.txt")
-	if err != nil {
-		panic(err)
-	}
-	defer fd_3.Close()
-	bytes_3 := []byte(san_txt)
-	if _, err := fd_3.Write(bytes_3); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/san.txt"); stat != nil {
+		fd_3, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/cert/san.txt")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_3.Close()
+		bytes_3 := []byte(san_txt)
+		if _, err := fd_3.Write(bytes_3); err != nil {
+			panic(err)
+		}
 	}
 
 	// script
@@ -121,14 +129,16 @@ DNS.1 = *.karakuri.container
 
 /docker-entrypoint.sh nginx -g "daemon off;"
 `
-	fd_4, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/script/entrypoint.sh")
-	if err != nil {
-		panic(err)
-	}
-	defer fd_4.Close()
-	bytes_4 := []byte(entrypoint)
-	if _, err := fd_4.Write(bytes_4); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/script/entrypoint.sh"); stat != nil {
+		fd_4, err := os.Create(karakuripkgs.KARAKURI_MOD_INGRESS + "/script/entrypoint.sh")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_4.Close()
+		bytes_4 := []byte(entrypoint)
+		if _, err := fd_4.Write(bytes_4); err != nil {
+			panic(err)
+		}
 	}
 }
 
