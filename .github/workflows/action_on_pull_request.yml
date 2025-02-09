@@ -75,7 +75,7 @@ jobs:
         - name: Setup utilities
           run: |
             sudo apt update
-            sudo apt install -y cgroup-tools iptables
+            sudo apt install -y cgroup-tools iptables curl
         
         - name: OS Version
           run: cat /etc/os-release
@@ -100,18 +100,19 @@ jobs:
         
         - name: Pull Image
           run: |
-            sudo karakuri pull --image alpine
+            sudo karakuri pull --image nginx:alpine
             sudo karakuri images
         
         - name: Create Container
           run: |
-            sudo karakuri create --name test_container --image alpine --cmd ping,-c,5,8.8.8.8
+            sudo karakuri create --name test_container --image nginx:alpine
             sudo karakuri ls
         
         - name: Start Container
           run: |
-            sudo karakuri start --name test_container --it
+            sudo karakuri start --name test_container
             sudo karakuri ls
+            curl http://10.157.2.2/
         
         - name: Stop Container
           run: |
@@ -141,7 +142,7 @@ jobs:
         - name: Setup utilities
           run: |
             sudo apt update
-            sudo apt install -y cgroup-tools iptables
+            sudo apt install -y cgroup-tools iptables curl
         
         - name: OS Version
           run: cat /etc/os-release
@@ -169,13 +170,14 @@ jobs:
         
         - name: Create Container to Namespace
           run: |
-            sudo karakuri create --name test_container --image alpine --cmd ping,-c,5,8.8.8.8 --ns sandbox
+            sudo karakuri create --name test_container --image nginx:alpine --ns sandbox
             sudo karakuri ls --ns sandbox
 
         - name: Start Container
           run: |
-            sudo karakuri start --it --name test_container
+            sudo karakuri start --name test_container
             sudo karakuri ls --ns sandbox
+            curl http://10.157.3.2/
         
         - name: Remove Containere
           run: |
