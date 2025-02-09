@@ -105,7 +105,7 @@ jobs:
         
         - name: Create Container
           run: |
-            sudo karakuri createe --name test_container --image nginx:alpine
+            sudo karakuri create --name test_container --image nginx:alpine
             sudo karakuri ls
         
         - name: Start Container
