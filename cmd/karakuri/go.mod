@@ -15,6 +15,7 @@ replace karakuri => ../../internal/apps/karakuri/karakuri
 require (
 	github.com/urfave/cli v1.22.16
 	karakuri v0.0.0-00010101000000-000000000000
+	karakuri_mod v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -25,6 +26,5 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	hitoha v0.0.0-00010101000000-000000000000 // indirect
-	karakuri_mod v0.0.0-00010101000000-000000000000 // indirect
 	karakuripkgs v0.0.0-00010101000000-000000000000 // indirect
 )

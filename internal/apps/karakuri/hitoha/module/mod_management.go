@@ -31,6 +31,12 @@ type ImageList struct {
 	List []ImageInfo `json:"list"`
 }
 
+func SetupModules() {
+	setupDnsModule()
+	setupRegistryModule()
+	setupIngressModule()
+}
+
 func NewModList() {
 	var mod_list_data ModList
 
@@ -39,7 +45,7 @@ func NewModList() {
 		ModInfo{
 			Name:        "dns",
 			ImageName:   "dns:system-mod",
-			Path:        karakuripkgs.KARAKURI_MOD_ROOT + "/dns",
+			Path:        karakuripkgs.KARAKURI_MOD_DNS,
 			Status:      "disable",
 			Description: "core DNS",
 		},
@@ -50,9 +56,20 @@ func NewModList() {
 		ModInfo{
 			Name:        "registry",
 			ImageName:   "registry",
-			Path:        karakuripkgs.KARAKURI_MOD_ROOT + "/registry",
+			Path:        karakuripkgs.KARAKURI_MOD_REGISTRY,
 			Status:      "disable",
 			Description: "private registry listen on localhost:5000",
+		},
+	)
+
+	// module: ingress
+	mod_list_data.List = append(mod_list_data.List,
+		ModInfo{
+			Name:        "ingress",
+			ImageName:   "ingress:system-mod",
+			Path:        karakuripkgs.KARAKURI_MOD_INGRESS,
+			Status:      "disable",
+			Description: "ingress controller for external access listen on 443",
 		},
 	)
 
@@ -104,11 +121,6 @@ func isImageExists(image string, tag string) bool {
 	return false
 }
 
-func SetupModules() {
-	setupDnsModule()
-	setupRegistryModule()
-}
-
 func EnableModule(mod_name string) ResponseEnableModule {
 	// status check
 	if IsModuleEnabled(mod_name) {
@@ -135,6 +147,9 @@ func EnableModule(mod_name string) ResponseEnableModule {
 				en_flag = true
 			case "registry":
 				enableRegistryModule(entry)
+				en_flag = true
+			case "ingress":
+				enableIngressModule(entry)
 				en_flag = true
 			}
 			// update status
@@ -194,6 +209,8 @@ func DisableModule(mod_name string) ResponseDisableModule {
 				disableDnsModule()
 			case "registry":
 				disableRegistryModule()
+			case "ingress":
+				disableIngressModule()
 			}
 			// update status
 			mod_list.List[i].Status = "disable"
