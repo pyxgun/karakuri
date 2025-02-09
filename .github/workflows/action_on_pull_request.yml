@@ -85,11 +85,8 @@ jobs:
             sh ./scripts/hitoha/build.sh
             sh ./scripts/karakuri/build.sh
         
-        - name: Setup Hitoha
-          run: sudo ./bin/hitoha &
-        
-        - name: Create Container
-          run: sudo ./bin/karakuri create --name test --image alpine
-
-        - name: Show container
-          run: sudo ./bin/karakuri ls
+        - name: Karakuri test
+          run: |
+            sudo ./bin/hitoha &
+            sudo ./bin/karakuri create --name test --image alpine
+            sudo ./bin/karakuri ls
