@@ -15,6 +15,7 @@ func main() {
 	var (
 		flag_image     string
 		flag_name      string
+		flag_restart   string
 		flag_namespace string
 		flag_os        string
 		flag_repositry string
@@ -71,6 +72,11 @@ func main() {
 					Destination: &flag_name,
 				},
 				cli.StringFlag{
+					Name:        "restart",
+					Value:       "no",
+					Destination: &flag_restart,
+				},
+				cli.StringFlag{
 					Name:        "ns",
 					Value:       "none",
 					Destination: &flag_namespace,
@@ -85,6 +91,7 @@ func main() {
 					Mount:     flag_mount,
 					Cmd:       flag_command,
 					Repositry: flag_repositry,
+					Restart:   flag_restart,
 				})
 			},
 		},
@@ -155,6 +162,11 @@ func main() {
 					Destination: &flag_repositry,
 				},
 				cli.StringFlag{
+					Name:        "restart",
+					Value:       "no",
+					Destination: &flag_restart,
+				},
+				cli.StringFlag{
 					Name:        "ns",
 					Value:       "none",
 					Destination: &flag_namespace,
@@ -175,6 +187,7 @@ func main() {
 					Cmd:       flag_command,
 					Repositry: flag_repositry,
 					Remove:    flag_rm,
+					Restart:   flag_restart,
 				})
 			},
 		},

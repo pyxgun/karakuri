@@ -15,6 +15,7 @@ type ParamsRuntimeSpec struct {
 	Nameserver string
 	Command    string
 	EnvVars    string
+	Restart    string
 }
 
 // runtime: spec command
@@ -25,6 +26,7 @@ func RuntimeSpec(params ParamsRuntimeSpec) {
 		"--hostdevice=" + params.HostDevice,
 		"--address=" + params.Address,
 		"--gateway=" + params.Gateway,
+		"--restart=" + params.Restart,
 	}
 	// set nameserver
 	if params.Nameserver != "none" {

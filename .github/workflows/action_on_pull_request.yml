@@ -8,6 +8,10 @@ on:
       - 'develop'
       - 'main'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
     test:
       runs-on: ubuntu-latest

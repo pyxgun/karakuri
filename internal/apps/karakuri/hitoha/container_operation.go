@@ -14,6 +14,7 @@ type ParamsCreateContainer struct {
 	Mount     string
 	Cmd       string
 	Repositry string
+	Restart   string
 }
 
 type ParamsRunContainer struct {
@@ -24,6 +25,7 @@ type ParamsRunContainer struct {
 	Mount     string
 	Cmd       string
 	Repositry string
+	Restart   string
 }
 
 func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
@@ -114,6 +116,7 @@ func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
 		Nameserver: nameserver,
 		Command:    command,
 		EnvVars:    envs,
+		Restart:    params.Restart,
 	})
 
 	// add container list
@@ -171,6 +174,7 @@ func RunContainer(params ParamsRunContainer) ResponseRunContainer {
 		Repositry: params.Repositry,
 		Name:      params.Name,
 		Namespace: params.Namespace,
+		Restart:   params.Restart,
 	})
 	if resp.Result != "success" {
 		return createResponseRunContainer(resp.Result, "", resp.Message)

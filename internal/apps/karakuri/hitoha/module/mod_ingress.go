@@ -163,7 +163,14 @@ func buildIngressImage(mod_info ModInfo) {
 }
 
 func createIngressContainer(mod_info ModInfo) {
-	create_args := []string{"create", "--name", mod_info.Name, "--image", mod_info.ImageName, "--port", "4443:443:tcp", "--ns", "system-mod"}
+	create_args := []string{
+		"create",
+		"--name", mod_info.Name,
+		"--image", mod_info.ImageName,
+		"--port", "4443:443:tcp",
+		"--restart", "on-boot",
+		"--ns", "system-mod",
+	}
 	create := exec.Command("karakuri", create_args...)
 	if err := create.Run(); err != nil {
 		panic(err)
