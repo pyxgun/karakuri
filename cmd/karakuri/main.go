@@ -2,6 +2,7 @@ package main
 
 import (
 	"karakuri"
+	"karakuri_mod"
 	"os"
 
 	"github.com/urfave/cli"
@@ -25,7 +26,8 @@ func main() {
 		flag_rm        bool
 		flag_buildpath string
 		// mod
-		flag_mod_name string
+		flag_mod_name         string
+		flag_mod_ingress_edit bool
 	)
 
 	app.Name = "Karakuri"
@@ -494,6 +496,21 @@ func main() {
 					},
 					Action: func(c *cli.Context) {
 						karakuri.DisableModule(flag_mod_name)
+					},
+				},
+				{
+					Name:  "ingress",
+					Usage: "edit ingress condition",
+					Flags: []cli.Flag{
+						cli.BoolFlag{
+							Name:        "edit",
+							Destination: &flag_mod_ingress_edit,
+						},
+					},
+					Action: func(c *cli.Context) {
+						if flag_mod_ingress_edit {
+							karakuri_mod.EditIngressEntry()
+						}
 					},
 				},
 			},
