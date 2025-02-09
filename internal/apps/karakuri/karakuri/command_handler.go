@@ -38,6 +38,7 @@ type RequestRunContainer struct {
 	Terminal  bool
 	Cmd       string
 	Repositry string
+	Restart   string
 	Remove    bool
 }
 
@@ -146,7 +147,8 @@ func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 		new_command + "/" +
 		request_param.Repositry + "/" +
 		request_param.Name + "/" +
-		request_param.Namespace
+		request_param.Namespace + "/" +
+		request_param.Restart
 
 	req, _ := http.NewRequest("POST", url, nil)
 

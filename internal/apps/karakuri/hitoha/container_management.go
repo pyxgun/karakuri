@@ -322,7 +322,7 @@ func autoStartContainer() {
 	}
 
 	for _, entry := range container_list_data.List {
-		if entry.Restart == "always" {
+		if entry.Restart == "on-boot" {
 			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + entry.Id)
 			karakuripkgs.RuntimeStart(entry.Id, false)
 			UpdateContainerStatus(entry.Id, "running")
