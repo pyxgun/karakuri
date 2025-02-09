@@ -69,7 +69,7 @@ func PostCreateContainer(w http.ResponseWriter, r *http.Request) {
 	// mount
 	mount := strings.Replace(params["mount"], "-", "/", -1)
 	// cmd
-	cmd := strings.Replace(params["cmd"], "-", "/", -1)
+	cmd := strings.Replace(params["cmd"], "!", "/", -1)
 	// repositry
 	repositry := params["repositry"]
 	// name
