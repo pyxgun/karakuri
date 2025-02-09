@@ -88,5 +88,8 @@ jobs:
         - name: Setup Hitoha
           run: sudo ./bin/hitoha &
         
-        - name: Run Hello-World
-          run: sudo ./bin/karakuri run --it --image hello-world --rm
+        - name: Create Container
+          run: sudo ./bin/karakuri create --name test --image alpine
+
+        - name: Show container
+          run: sudo ./bin/karakuri ls
