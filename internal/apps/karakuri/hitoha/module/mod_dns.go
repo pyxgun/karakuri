@@ -18,15 +18,18 @@ RUN apk add bind --no-cache
 
 CMD ["/usr/sbin/named", "-c", "/conf/named.conf", "-g"]
 `
-	fd, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/Karakurifile")
-	if err != nil {
-		panic(err)
-	}
-	defer fd.Close()
 
-	bytes := []byte(karakurifile)
-	if _, err := fd.Write(bytes); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_DNS + "/Karakurifile"); stat != nil {
+		fd, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/Karakurifile")
+		if err != nil {
+			panic(err)
+		}
+		defer fd.Close()
+
+		bytes := []byte(karakurifile)
+		if _, err := fd.Write(bytes); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -78,24 +81,28 @@ zone "karakuri.container" IN {
 @          IN NS ns.karakuri.container.
 `
 
-	fd_1, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/conf/named.conf")
-	if err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_DNS + "/conf/named.conf"); stat != nil {
+		fd_1, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/conf/named.conf")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_1.Close()
+		bytes_1 := []byte(named_conf)
+		if _, err := fd_1.Write(bytes_1); err != nil {
+			panic(err)
+		}
 	}
-	fd_2, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/conf/karakuri.container.zone")
-	if err != nil {
-		panic(err)
-	}
-	defer fd_1.Close()
-	defer fd_2.Close()
 
-	bytes_1 := []byte(named_conf)
-	if _, err := fd_1.Write(bytes_1); err != nil {
-		panic(err)
-	}
-	bytes_2 := []byte(karakuri_container_zone)
-	if _, err := fd_2.Write(bytes_2); err != nil {
-		panic(err)
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_DNS + "/conf/karakuri.container.zone"); stat != nil {
+		fd_2, err := os.Create(karakuripkgs.KARAKURI_MOD_DNS + "/conf/karakuri.container.zone")
+		if err != nil {
+			panic(err)
+		}
+		defer fd_2.Close()
+		bytes_2 := []byte(karakuri_container_zone)
+		if _, err := fd_2.Write(bytes_2); err != nil {
+			panic(err)
+		}
 	}
 }
 
