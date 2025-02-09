@@ -86,7 +86,7 @@ jobs:
             sh ./scripts/karakuri/build.sh
         
         - name: Setup Hitoha
-          run: ./bin/hitoha &
+          run: sudo ./bin/hitoha &
         
         - name: Run Hello-World
-          run: ./bin/karakuri run --it --image hello-world --rm
+          run: sudo ./bin/karakuri run --it --image hello-world --rm
