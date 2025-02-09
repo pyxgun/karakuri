@@ -28,7 +28,7 @@ type NetworkList struct {
 // interface and iptables
 func createNetworkInterface(dev_type string, dev_name string, address string, subnet string) {
 	// wait for network setup
-	time.Sleep(1500 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	// create bridge interface
 	cmd1 := exec.Command("ip", "link", "add", dev_name, "type", dev_type)
 	if err := cmd1.Run(); err != nil {
