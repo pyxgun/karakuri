@@ -1,6 +1,6 @@
 # <img src="./docs/images/karakuri_icon.png">
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/release-v0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/release-v0.1.1-blue.svg)
 
 ## Introduction
 `karakuri` is a container runtime for small-scale development environments.  
