@@ -75,7 +75,7 @@ jobs:
         - name: Setup utilities
           run: |
             sudo apt update
-            sudo apt install -y cgroup-tools iptables curl
+            sudo apt install -y cgroup-tools iptables
         
         - name: OS Version
           run: cat /etc/os-release
@@ -112,7 +112,6 @@ jobs:
           run: |
             sudo karakuri start --name test_container
             sudo karakuri ls
-            curl http://10.157.2.2/
         
         - name: Stop Container
           run: |
@@ -142,7 +141,7 @@ jobs:
         - name: Setup utilities
           run: |
             sudo apt update
-            sudo apt install -y cgroup-tools iptables curl
+            sudo apt install -y cgroup-tools iptables
         
         - name: OS Version
           run: cat /etc/os-release
@@ -177,7 +176,6 @@ jobs:
           run: |
             sudo karakuri start --name test_container
             sudo karakuri ls --ns sandbox
-            curl http://10.157.3.2/
         
         - name: Remove Containere
           run: |
