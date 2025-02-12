@@ -63,7 +63,7 @@ func PostCreateContainer(w http.ResponseWriter, r *http.Request) {
 	// retrieve parameter
 	params := mux.Vars(r)
 	// image
-	image := params["image"]
+	image := strings.Replace(params["image"], "!", "/", -1)
 	// port
 	port := params["port"]
 	// mount
@@ -119,7 +119,7 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 	// retrieve parameter
 	params := mux.Vars(r)
 	// image
-	image := params["image"]
+	image := strings.Replace(params["image"], "!", "/", -1)
 	// port
 	port := params["port"]
 	// mount

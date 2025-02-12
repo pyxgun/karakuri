@@ -160,10 +160,10 @@ func printContainerSpec(spec karakuripkgs.ConfigSpec) {
 
 func printImageList(image_list hitoha.ImageList) {
 	// print image list
-	fmt.Printf("REPOSITORY\t| TAG\t\t| ID\n")
-	fmt.Printf("----------------+---------------+-----------------\n")
+	fmt.Printf("REPOSITORY\t\t\t\t| TAG\t\t\t| ID\n")
+	fmt.Printf("----------------------------------------+-----------------------+-----------------\n")
 	for _, entry := range image_list.List {
-		fmt.Printf("%-15s\t| %-10s\t| %s\n", entry.Image, entry.Tag, entry.ImageId)
+		fmt.Printf("%-35s\t| %-15s\t| %s\n", entry.Image, entry.Tag, entry.ImageId)
 	}
 }
 
@@ -207,14 +207,14 @@ func printModuleList(mod_list karakuri_mod.ModList) {
 	fmt.Println("Enabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "enable" {
-			fmt.Printf("  %-8s\t# %s\n", entry.Name, entry.Description)
+			fmt.Printf("  %-15s\t# %s\n", entry.Name, entry.Description)
 		}
 	}
 
 	fmt.Println("Disabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "disable" {
-			fmt.Printf("  %-8s\t# %s\n", entry.Name, entry.Description)
+			fmt.Printf("  %-15s\t# %s\n", entry.Name, entry.Description)
 		}
 	}
 }

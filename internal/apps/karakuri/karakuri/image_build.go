@@ -272,7 +272,19 @@ func buildProcCreateBlobFile(build_book BuildBook, image_layer string) {
 	var blob_file BlobFile
 	// set base images's env
 	base_env := getEnvList(build_book.Image)
-	build_book.Blob.Env = append(build_book.Blob.Env, base_env...)
+
+	for _, entry := range base_env {
+		exists_flag := false
+		for _, set_env := range build_book.Blob.Env {
+			if entry.Key == set_env.Key {
+				exists_flag = true
+				break
+			}
+		}
+		if !exists_flag {
+			build_book.Blob.Env = append(build_book.Blob.Env, entry)
+		}
+	}
 
 	for _, entry := range build_book.Blob.Env {
 		blob_file.Config.Env = append(blob_file.Config.Env, entry.Key+"="+entry.Value)

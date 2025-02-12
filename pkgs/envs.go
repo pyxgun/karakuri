@@ -41,9 +41,10 @@ const (
 	KARAKURI_MOD_LIST = KARAKURI_MOD_ROOT + "/module_list.json"
 
 	// modules
-	KARAKURI_MOD_DNS      = KARAKURI_MOD_ROOT + "/dns"
-	KARAKURI_MOD_REGISTRY = KARAKURI_MOD_ROOT + "/registry"
-	KARAKURI_MOD_INGRESS  = KARAKURI_MOD_ROOT + "/ingress"
+	KARAKURI_MOD_DNS              = KARAKURI_MOD_ROOT + "/dns"
+	KARAKURI_MOD_REGISTRY         = KARAKURI_MOD_ROOT + "/registry"
+	KARAKURI_MOD_REGISTRY_BROWSER = KARAKURI_MOD_ROOT + "/registry-browser"
+	KARAKURI_MOD_INGRESS          = KARAKURI_MOD_ROOT + "/ingress"
 )
 
 // runtime
