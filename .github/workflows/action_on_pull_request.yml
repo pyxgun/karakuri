@@ -241,6 +241,7 @@ jobs:
             sudo karakuri mod enable --name dns
             sudo karakuri mod enable --name ingress
             sudo karakuri mod enable --name registry
+            sudo karakuri mod enable --name registry-browser
             sudo karakuri mod
             sudo karakuri ls --ns system-mod
         
@@ -249,5 +250,6 @@ jobs:
             sudo karakuri mod disable --name dns
             sudo karakuri mod disable --name ingress
             sudo karakuri mod disable --name registry
+            sudo karakuri mod disable --name registry-browser
             sudo karakuri mod
             sudo karakuri ls --ns system-mod
