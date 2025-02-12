@@ -34,6 +34,7 @@ type ImageList struct {
 func SetupModules() {
 	setupDnsModule()
 	setupRegistryModule()
+	setupRegistryBrowserModule()
 	setupIngressModule()
 }
 
@@ -55,10 +56,21 @@ func NewModList() {
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
 			Name:        "registry",
-			ImageName:   "registry",
+			ImageName:   "registry:system-mod",
 			Path:        karakuripkgs.KARAKURI_MOD_REGISTRY,
 			Status:      "disable",
-			Description: "private registry listen on localhost:5000",
+			Description: "private registry listen on 5000",
+		},
+	)
+
+	// module: registry-browser
+	mod_list_data.List = append(mod_list_data.List,
+		ModInfo{
+			Name:        "registry-browser",
+			ImageName:   "registry-browser:system-mod",
+			Path:        karakuripkgs.KARAKURI_MOD_REGISTRY_BROWSER,
+			Status:      "disable",
+			Description: "registry browser listen on 8081",
 		},
 	)
 
@@ -69,7 +81,7 @@ func NewModList() {
 			ImageName:   "ingress:system-mod",
 			Path:        karakuripkgs.KARAKURI_MOD_INGRESS,
 			Status:      "disable",
-			Description: "ingress controller for external access listen on 443",
+			Description: "ingress controller for external access listen on 4443",
 		},
 	)
 
@@ -148,6 +160,9 @@ func EnableModule(mod_name string) ResponseEnableModule {
 			case "registry":
 				enableRegistryModule(entry)
 				en_flag = true
+			case "registry-browser":
+				enableRegistryBrowserModule(entry)
+				en_flag = true
 			case "ingress":
 				enableIngressModule(entry)
 				en_flag = true
@@ -209,6 +224,8 @@ func DisableModule(mod_name string) ResponseDisableModule {
 				disableDnsModule()
 			case "registry":
 				disableRegistryModule()
+			case "registry-browser":
+				disableRegistryBrowserModule()
 			case "ingress":
 				disableIngressModule()
 			}

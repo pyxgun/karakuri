@@ -207,14 +207,14 @@ func printModuleList(mod_list karakuri_mod.ModList) {
 	fmt.Println("Enabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "enable" {
-			fmt.Printf("  %-8s\t# %s\n", entry.Name, entry.Description)
+			fmt.Printf("  %-15s\t# %s\n", entry.Name, entry.Description)
 		}
 	}
 
 	fmt.Println("Disabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "disable" {
-			fmt.Printf("  %-8s\t# %s\n", entry.Name, entry.Description)
+			fmt.Printf("  %-15s\t# %s\n", entry.Name, entry.Description)
 		}
 	}
 }

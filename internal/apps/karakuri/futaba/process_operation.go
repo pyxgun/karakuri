@@ -336,10 +336,7 @@ func InitContainer(spec string) {
 		return
 	}
 	// set nameserver
-	if err := setNameeserver(config_spec); err != nil {
-		fmt.Println(err)
-		return
-	}
+	setNameeserver(config_spec)
 	// set /dev/null
 	if err := setDevNull(config_spec); err != nil {
 		fmt.Println(err)
