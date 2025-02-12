@@ -1,6 +1,6 @@
 # <img src="./docs/images/karakuri_icon.png">
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/release-v0.1.3-blue.svg)
+![Version](https://img.shields.io/badge/release-v0.1.4-blue.svg)
 
 ## Introduction
 `karakuri` is a container runtime for small-scale development environments.  
@@ -39,6 +39,15 @@ $ git clone https://github.com/pyxgun/karakuri.git
 $ cd karakuri
 
 $ sh scripts/build.sh
+```
+
+### Test Run
+```
+$ sudo karakuri run --rm --it --image hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+   :
 ```
 
 ## Quick start
