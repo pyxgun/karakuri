@@ -74,11 +74,12 @@ type RequestShowContainerSpec struct {
 // container requests
 // request create container
 func requestCreateContainer(request_param RequestCreateContainer) (result bool, message string) {
+	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "!", -1)
 	url := karakuripkgs.SERVER +
 		"/container/create/" +
-		request_param.Image + "/" +
+		new_image + "/" +
 		request_param.Port + "/" +
 		new_mount + "/" +
 		new_command + "/" +
@@ -137,11 +138,12 @@ func requestStartContainer(id string) (result bool, meessage string) {
 
 // func requestRunContainer(image string, port string, mount string, cmd string, repositry string) (bool, string) {
 func requestRunContainer(request_param RequestRunContainer) (bool, string) {
+	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "-", -1)
 	url := karakuripkgs.SERVER +
 		"/container/run/" +
-		request_param.Image + "/" +
+		new_image + "/" +
 		request_param.Port + "/" +
 		new_mount + "/" +
 		new_command + "/" +
