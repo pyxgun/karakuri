@@ -88,7 +88,20 @@ type BlobFile struct {
 // -------------------------------------
 // public repositry
 func getToken(image string) string {
-	url := "https://auth.docker.io/token?scope=repository:library/" + image + ":pull&service=registry.docker.io"
+	image_info := strings.Split(image, "/")
+	var (
+		repository string
+		image_name string
+	)
+	if len(image_info) == 2 {
+		repository = image_info[0]
+		image_name = image_info[1]
+	} else {
+		repository = "library"
+		image_name = image
+	}
+	// url := "https://auth.docker.io/token?scope=repository:library/" + image + ":pull&service=registry.docker.io"
+	url := "https://auth.docker.io/token?scope=repository:" + repository + "/" + image_name + ":pull&service=registry.docker.io"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Content-Type", "application/json")
@@ -110,7 +123,19 @@ func getToken(image string) string {
 }
 
 func getManifestList(image string, tag string, token string) ManifestList {
-	url := "https://registry-1.docker.io/v2/library/" + image + "/manifests/" + tag
+	image_info := strings.Split(image, "/")
+	var (
+		repository string
+		image_name string
+	)
+	if len(image_info) == 2 {
+		repository = image_info[0]
+		image_name = image_info[1]
+	} else {
+		repository = "library"
+		image_name = image
+	}
+	url := "https://registry-1.docker.io/v2/" + repository + "/" + image_name + "/manifests/" + tag
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.list.v2+json")
@@ -134,7 +159,19 @@ func getManifestList(image string, tag string, token string) ManifestList {
 }
 
 func getBlob(manifest_digest string, image string, token string) ManifestBlob {
-	url := "https://registry-1.docker.io/v2/library/" + image + "/blobs/" + manifest_digest
+	image_info := strings.Split(image, "/")
+	var (
+		repository string
+		image_name string
+	)
+	if len(image_info) == 2 {
+		repository = image_info[0]
+		image_name = image_info[1]
+	} else {
+		repository = "library"
+		image_name = image
+	}
+	url := "https://registry-1.docker.io/v2/" + repository + "/" + image_name + "/blobs/" + manifest_digest
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -156,7 +193,19 @@ func getBlob(manifest_digest string, image string, token string) ManifestBlob {
 }
 
 func getConfig(digest string, image string, token string, image_id string) {
-	url := "https://registry-1.docker.io/v2/library/" + image + "/blobs/" + digest
+	image_info := strings.Split(image, "/")
+	var (
+		repository string
+		image_name string
+	)
+	if len(image_info) == 2 {
+		repository = image_info[0]
+		image_name = image_info[1]
+	} else {
+		repository = "library"
+		image_name = image
+	}
+	url := "https://registry-1.docker.io/v2/" + repository + "/" + image_name + "/blobs/" + digest
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -179,7 +228,19 @@ func getConfig(digest string, image string, token string, image_id string) {
 }
 
 func getLayer(digest string, image string, token string, image_id string, index int) {
-	url := "https://registry-1.docker.io/v2/library/" + image + "/blobs/" + digest
+	image_info := strings.Split(image, "/")
+	var (
+		repository string
+		image_name string
+	)
+	if len(image_info) == 2 {
+		repository = image_info[0]
+		image_name = image_info[1]
+	} else {
+		repository = "library"
+		image_name = image
+	}
+	url := "https://registry-1.docker.io/v2/" + repository + "/" + image_name + "/blobs/" + digest
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+token)

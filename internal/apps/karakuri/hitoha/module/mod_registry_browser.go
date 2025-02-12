@@ -10,7 +10,7 @@ import (
 func createRegistryBrowserModuleKarakurifile() {
 	// create Karakurifile
 	device_address, _ := getDeviceIpAddress()
-	karakurifile := `FROM registry-browser
+	karakurifile := `FROM klausmeyer/docker-registry-browser
 
 COPY /etc/karakuri/modules/registry-browser/script /script
 
