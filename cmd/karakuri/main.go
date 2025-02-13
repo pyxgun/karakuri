@@ -18,7 +18,7 @@ func main() {
 		flag_restart   string
 		flag_namespace string
 		flag_os        string
-		flag_repositry string
+		flag_registry  string
 		flag_port      string
 		flag_command   string
 		flag_mount     string
@@ -62,9 +62,9 @@ func main() {
 					Destination: &flag_command,
 				},
 				cli.StringFlag{
-					Name:        "repo",
+					Name:        "registry",
 					Value:       "public",
-					Destination: &flag_repositry,
+					Destination: &flag_registry,
 				},
 				cli.StringFlag{
 					Name:        "name",
@@ -90,7 +90,7 @@ func main() {
 					Port:      flag_port,
 					Mount:     flag_mount,
 					Cmd:       flag_command,
-					Repositry: flag_repositry,
+					Registry:  flag_registry,
 					Restart:   flag_restart,
 				})
 			},
@@ -157,9 +157,9 @@ func main() {
 					Destination: &flag_it,
 				},
 				cli.StringFlag{
-					Name:        "repo",
+					Name:        "registry",
 					Value:       "public",
-					Destination: &flag_repositry,
+					Destination: &flag_registry,
 				},
 				cli.StringFlag{
 					Name:        "restart",
@@ -185,7 +185,7 @@ func main() {
 					Mount:     flag_mount,
 					Terminal:  flag_it,
 					Cmd:       flag_command,
-					Repositry: flag_repositry,
+					Registry:  flag_registry,
 					Remove:    flag_rm,
 					Restart:   flag_restart,
 				})
@@ -389,13 +389,31 @@ func main() {
 					Destination: &flag_os,
 				},
 				cli.StringFlag{
-					Name:        "repo",
+					Name:        "registry",
 					Value:       "public",
-					Destination: &flag_repositry,
+					Destination: &flag_registry,
 				},
 			},
 			Action: func(c *cli.Context) {
-				karakuri.PullImage(flag_image, flag_os, flag_repositry)
+				karakuri.PullImage(flag_image, flag_os, flag_registry)
+			},
+		},
+		{
+			Name:  "push",
+			Usage: "push image",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "registry",
+					Required:    true,
+					Destination: &flag_registry,
+				},
+				cli.StringFlag{
+					Name:        "image",
+					Required:    true,
+					Destination: &flag_image,
+				},
+			}, Action: func(c *cli.Context) {
+				karakuri.PushImage(flag_image, flag_registry)
 			},
 		},
 		// rmi

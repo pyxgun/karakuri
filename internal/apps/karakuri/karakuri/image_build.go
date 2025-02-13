@@ -55,7 +55,9 @@ type BlobConfig struct {
 }
 
 type BlobFile struct {
-	Config BlobConfig `json:"Config"`
+	Config BlobConfig `json:"config"`
+	Os     string     `json:"os"`
+	Arch   string     `json:"architecture"`
 }
 
 func readBuildFile(buildpath string) []string {
@@ -87,7 +89,7 @@ func getEnvList(image_tag string) []EnvParam {
 	}
 
 	image_id := hitoha.GetImageId(image, tag)
-	blob_path := karakuripkgs.IMAGE_ROOT + "/" + image_id + "/blob.json"
+	blob_path := karakuripkgs.IMAGE_ROOT + "/" + image_id + "/config.json"
 
 	// read blob
 	var bytes []byte
@@ -213,7 +215,7 @@ func buildProcCreateContainer(build_book BuildBook, image_id string) string {
 		Cmd:       container_command,
 		Port:      "none",
 		Mount:     "none",
-		Repositry: "public",
+		Registry:  "public",
 		Restart:   "no",
 	})
 
@@ -291,10 +293,13 @@ func buildProcCreateBlobFile(build_book BuildBook, image_layer string) {
 	}
 	// set cmd
 	blob_file.Config.Cmd = build_book.Blob.Cmd
+	// set os
+	blob_file.Os = "linux"
+	blob_file.Arch = "amd64"
 
 	// write file
 	data, _ := json.MarshalIndent(blob_file, "", "  ")
-	if err := os.WriteFile(image_layer+"/blob.json", data, fs.ModePerm); err != nil {
+	if err := os.WriteFile(image_layer+"/config.json", data, fs.ModePerm); err != nil {
 		panic(err)
 	}
 }

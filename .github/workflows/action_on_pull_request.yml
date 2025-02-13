@@ -36,37 +36,10 @@ jobs:
           run: |
             cd pkgs && go test -v ./... && cd ..
 
-    build:
+    test_karakuri:
       runs-on: ubuntu-latest
       timeout-minutes: 5
       needs: test
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Setup Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: '>=1.22.0'
-            cache: false
-
-        - name: OS Version
-          run: cat /etc/os-release
-
-        - name: Go Version
-          run: go version
-
-        - name: Build
-          run: |
-            mkdir ./bin
-            sh ./scripts/futaba/build.sh
-            sh ./scripts/hitoha/build.sh
-            sh ./scripts/karakuri/build.sh
-
-    test_container_lifecycle:
-      runs-on: ubuntu-latest
-      timeout-minutes: 5
-      needs: [test, build]
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -128,44 +101,6 @@ jobs:
             sudo karakuri rm --name test_container
             sudo karakuri ls
 
-
-    test_namespace:
-      runs-on: ubuntu-latest
-      timeout-minutes: 5
-      needs: [test, build]
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-        
-        - name: Setup Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: '>=1.22.0'
-            cache: false
-                
-        - name: Setup utilities
-          run: |
-            sudo apt update
-            sudo apt install -y cgroup-tools iptables
-        
-        - name: OS Version
-          run: cat /etc/os-release
-      
-        - name: Go Version
-          run: go version
-        
-        - name: Build
-          run: |
-            mkdir ./bin
-            sh ./scripts/futaba/build.sh
-            sh ./scripts/hitoha/build.sh
-            sh ./scripts/karakuri/build.sh
-            sudo cp ./bin/* /bin
-                
-        - name: Start Karakuri Daemon
-          run: |
-            sudo hitoha &
-        
         - name: Create Namespace
           run: |
             sudo karakuri createns --name sandbox
@@ -193,44 +128,6 @@ jobs:
             sudo karakuri ns
             ip a
 
-
-    test_module:
-      runs-on: ubuntu-latest
-      timeout-minutes: 5
-      needs: [test, build]
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Setup Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: '>=1.22.0'
-            cache: false
-
-        - name: Setup utilities
-          run: |
-            sudo apt update
-            sudo apt install -y cgroup-tools iptables
-
-        - name: OS Version
-          run: cat /etc/os-release
-
-        - name: Go Version
-          run: go version
-
-        - name: Build
-          run: |
-            mkdir ./bin
-            sh ./scripts/futaba/build.sh
-            sh ./scripts/hitoha/build.sh
-            sh ./scripts/karakuri/build.sh
-            sudo cp ./bin/* /bin
-
-        - name: Start Karakuri Daemon
-          run: |
-            sudo hitoha &
-
         - name: Show Modules
           run: |
             sudo karakuri mod
@@ -244,6 +141,11 @@ jobs:
             sudo karakuri mod enable --name registry-browser
             sudo karakuri mod
             sudo karakuri ls --ns system-mod
+
+        - name: Push Image
+          run: |
+            IPADDR=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+            sudo karakuri push --registry $IPADDR:5000 --image dns:system-mod
         
         - name: Disable Modules
           run: |
