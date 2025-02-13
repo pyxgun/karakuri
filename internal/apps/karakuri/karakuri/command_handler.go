@@ -19,7 +19,7 @@ type RequestCreateContainer struct {
 	Port      string
 	Mount     string
 	Cmd       string
-	Repositry string
+	Registry  string
 	Restart   string
 }
 
@@ -37,7 +37,7 @@ type RequestRunContainer struct {
 	Mount     string
 	Terminal  bool
 	Cmd       string
-	Repositry string
+	Registry  string
 	Restart   string
 	Remove    bool
 }
@@ -83,7 +83,7 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 		request_param.Port + "/" +
 		new_mount + "/" +
 		new_command + "/" +
-		request_param.Repositry + "/" +
+		request_param.Registry + "/" +
 		request_param.Name + "/" +
 		request_param.Namespace + "/" +
 		request_param.Restart
@@ -136,7 +136,7 @@ func requestStartContainer(id string) (result bool, meessage string) {
 	return true, response.Message
 }
 
-// func requestRunContainer(image string, port string, mount string, cmd string, repositry string) (bool, string) {
+// func requestRunContainer(image string, port string, mount string, cmd string, registry string) (bool, string) {
 func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
@@ -147,7 +147,7 @@ func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 		request_param.Port + "/" +
 		new_mount + "/" +
 		new_command + "/" +
-		request_param.Repositry + "/" +
+		request_param.Registry + "/" +
 		request_param.Name + "/" +
 		request_param.Namespace + "/" +
 		request_param.Restart
@@ -495,9 +495,9 @@ func requestShowImage() (string, hitoha.ImageList) {
 }
 
 // pull image
-func requestPullImage(image_tag string, os_arch string, repositry string) (result bool, inlocal bool) {
+func requestPullImage(image_tag string, os_arch string, registry string) (result bool, inlocal bool) {
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := karakuripkgs.SERVER + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + repositry
+	url := karakuripkgs.SERVER + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + registry
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -523,6 +523,34 @@ func requestPullImage(image_tag string, os_arch string, repositry string) (resul
 		return true, true
 	}
 	return true, false
+}
+
+// push image
+func requestPushImage(image_tag string, registry string) (result bool, message string) {
+	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
+	url := karakuripkgs.SERVER + "/image/push/" + new_image_tag + "/" + registry
+
+	req, _ := http.NewRequest("POST", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponsePushImage
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message
+	}
+
+	return true, response.Message
 }
 
 // delete image
@@ -561,9 +589,9 @@ func ShowImage() {
 	printImageList(image_list)
 }
 
-func PullImage(image_tag string, os_arch string, repositry string) {
+func PullImage(image_tag string, os_arch string, registry string) {
 	fmt.Println("Pulling image, " + image_tag + " ...")
-	result, is_exist := requestPullImage(image_tag, os_arch, repositry)
+	result, is_exist := requestPullImage(image_tag, os_arch, registry)
 	if !result {
 		fmt.Println("ERR: failed to pull image")
 		return
@@ -573,6 +601,16 @@ func PullImage(image_tag string, os_arch string, repositry string) {
 	} else {
 		fmt.Println("Pull \"" + image_tag + "\" completed")
 	}
+}
+
+func PushImage(image_tag string, registry string) {
+	fmt.Println("Pushing image, [" + registry + "/" + image_tag + "] ...")
+	result, message := requestPushImage(image_tag, registry)
+	if !result {
+		fmt.Println(message)
+		return
+	}
+	fmt.Println("Push completed")
 }
 
 func DeleteImage(id string) {

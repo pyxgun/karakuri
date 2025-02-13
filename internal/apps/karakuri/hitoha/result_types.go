@@ -49,6 +49,12 @@ type ResponsePullImage struct {
 	Image       TargetImage `json:"image"`
 }
 
+type ResponsePushImage struct {
+	Result  string `json:"result"`
+	Image   string `json:"image"`
+	Message string `json:"message"`
+}
+
 type ResponseStopContainer struct {
 	Result  string `json:"result"`
 	Message string `json:"message"`
@@ -159,6 +165,15 @@ func createResponsePullImage(result string, inlocal bool, image string, tag stri
 			Os:         os,
 			Arch:       arch,
 		},
+	}
+	return resp
+}
+
+func createResponsePushImage(result string, image string, message string) ResponsePushImage {
+	resp := ResponsePushImage{
+		Result:  result,
+		Image:   image,
+		Message: message,
 	}
 	return resp
 }

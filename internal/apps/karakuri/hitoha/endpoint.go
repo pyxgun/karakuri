@@ -70,8 +70,8 @@ func PostCreateContainer(w http.ResponseWriter, r *http.Request) {
 	mount := strings.Replace(params["mount"], "-", "/", -1)
 	// cmd
 	cmd := strings.Replace(params["cmd"], "!", "/", -1)
-	// repositry
-	repositry := params["repositry"]
+	// registry
+	registry := params["registry"]
 	// name
 	name := params["name"]
 	if name == "none" {
@@ -85,7 +85,7 @@ func PostCreateContainer(w http.ResponseWriter, r *http.Request) {
 	// restart
 	restart := params["restart"]
 
-	//resp := CreateContainer(image, port, mount, cmd, repositry)
+	//resp := CreateContainer(image, port, mount, cmd, registry)
 	resp := CreateContainer(ParamsCreateContainer{
 		ImageInfo: image,
 		Name:      name,
@@ -93,7 +93,7 @@ func PostCreateContainer(w http.ResponseWriter, r *http.Request) {
 		Port:      port,
 		Mount:     mount,
 		Cmd:       cmd,
-		Repositry: repositry,
+		Registry:  registry,
 		Restart:   restart,
 	})
 
@@ -126,8 +126,8 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 	mount := strings.Replace(params["mount"], "-", "/", -1)
 	// cmd
 	cmd := strings.Replace(params["cmd"], "-", "/", -1)
-	// repositry
-	repositry := params["repositry"]
+	// registry
+	registry := params["registry"]
 	// name
 	name := params["name"]
 	// namespace
@@ -138,7 +138,7 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 	// restart
 	restart := params["restart"]
 
-	//resp := RunContainer(image, port, mount, cmd, repositry)
+	//resp := RunContainer(image, port, mount, cmd, registry)
 	resp := RunContainer(ParamsRunContainer{
 		ImageInfo: image,
 		Name:      name,
@@ -146,7 +146,7 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 		Port:      port,
 		Mount:     mount,
 		Cmd:       cmd,
-		Repositry: repositry,
+		Registry:  registry,
 		Restart:   restart,
 	})
 
@@ -214,10 +214,26 @@ func GetPullImage(w http.ResponseWriter, r *http.Request) {
 	image_tag := strings.Replace(params["image-tag"], "!", "/", -1)
 	// os/arch
 	os_arch := params["os-arch"]
-	// repositry
-	repositry := params["repositry"]
+	// registry
+	registry := params["registry"]
 
-	resp := PullImage(image_tag, os_arch, repositry)
+	resp := PullImage(image_tag, os_arch, registry)
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// pull image
+func PostPushImage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// retrieve parameter
+	params := mux.Vars(r)
+	// image/tag
+	image_tag := strings.Replace(params["image-tag"], "!", "/", -1)
+	// registry
+	registry := params["registry"]
+
+	resp := PushImage(registry, image_tag)
 
 	json.NewEncoder(w).Encode(resp)
 }
