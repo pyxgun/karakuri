@@ -22,9 +22,9 @@ func main() {
 	router.HandleFunc("/container/spec/{id}", hitoha.GetContainerSpec).Methods("GET")
 	router.HandleFunc("/container/getid/{name}", hitoha.GetContainerId).Methods("GET")
 	// POST
-	router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{repositry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
+	router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
 	router.HandleFunc("/container/start/{id}", hitoha.PostStartContainer).Methods("POST")
-	router.HandleFunc("/container/run/{image}/{port}/{mount}/{cmd}/{repositry}/{name}/{namespace}/{restart}", hitoha.PostRunContainer).Methods("POST")
+	router.HandleFunc("/container/run/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostRunContainer).Methods("POST")
 	router.HandleFunc("/container/exec/{id}", hitoha.PostExecContainer).Methods("POST")
 	router.HandleFunc("/container/kill/{id}", hitoha.PostKillContainer).Methods("POST")
 	// DELETE
@@ -33,7 +33,9 @@ func main() {
 	// Image
 	// GET
 	router.HandleFunc("/image/ls", hitoha.GetShowImages).Methods("GET")
-	router.HandleFunc("/image/pull/{image-tag}/{os-arch}/{repositry}", hitoha.GetPullImage).Methods("GET")
+	router.HandleFunc("/image/pull/{image-tag}/{os-arch}/{registry}", hitoha.GetPullImage).Methods("GET")
+	// POST
+	router.HandleFunc("/image/push/{image-tag}/{registry}", hitoha.PostPushImage).Methods("POST")
 	// DELETE
 	router.HandleFunc("/image/delete/{id}", hitoha.DeleteDeleteImage).Methods("DELETE")
 

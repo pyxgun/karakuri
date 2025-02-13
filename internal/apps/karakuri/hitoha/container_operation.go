@@ -13,7 +13,7 @@ type ParamsCreateContainer struct {
 	Port      string
 	Mount     string
 	Cmd       string
-	Repositry string
+	Registry  string
 	Restart   string
 }
 
@@ -24,7 +24,7 @@ type ParamsRunContainer struct {
 	Port      string
 	Mount     string
 	Cmd       string
-	Repositry string
+	Registry  string
 	Restart   string
 }
 
@@ -48,7 +48,7 @@ func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
 	}
 
 	if !isImageExists(image, tag) {
-		PullImage(params.ImageInfo, "linux:amd64", params.Repositry)
+		PullImage(params.ImageInfo, "linux:amd64", params.Registry)
 	}
 
 	// retrieve rootfs
@@ -165,13 +165,13 @@ func ExecContainer(id string) ResponseContainerInfo {
 }
 
 func RunContainer(params ParamsRunContainer) ResponseRunContainer {
-	//resp := CreateContainer(image_tag, port, mount, cmd, repositry)
+	//resp := CreateContainer(image_tag, port, mount, cmd, Registry)
 	resp := CreateContainer(ParamsCreateContainer{
 		ImageInfo: params.ImageInfo,
 		Port:      params.Port,
 		Mount:     params.Port,
 		Cmd:       params.Cmd,
-		Repositry: params.Repositry,
+		Registry:  params.Registry,
 		Name:      params.Name,
 		Namespace: params.Namespace,
 		Restart:   params.Restart,
