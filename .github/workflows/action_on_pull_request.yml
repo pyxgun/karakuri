@@ -73,34 +73,6 @@ jobs:
           run: |
             sudo hitoha &
                 
-        - name: Show NICs
-          run: ip a
-        
-        - name: Pull Image
-          run: |
-            sudo karakuri pull --image nginx:alpine
-            sudo karakuri images
-        
-        - name: Create Container
-          run: |
-            sudo karakuri create --name test_container --image nginx:alpine
-            sudo karakuri ls
-        
-        - name: Start Container
-          run: |
-            sudo karakuri start --name test_container
-            sudo karakuri ls
-        
-        - name: Stop Container
-          run: |
-            sudo karakuri stop --name test_container
-            sudo karakuri ls
-        
-        - name: Remove Container
-          run: |
-            sudo karakuri rm --name test_container
-            sudo karakuri ls
-
         - name: Create Namespace
           run: |
             sudo karakuri createns --name sandbox
@@ -128,11 +100,6 @@ jobs:
             sudo karakuri ns
             ip a
 
-        - name: Show Modules
-          run: |
-            sudo karakuri mod
-            sudo karakuri ls --ns system-mod
-
         - name: Enable Modules
           run: |
             sudo karakuri mod enable --name dns
@@ -141,11 +108,26 @@ jobs:
             sudo karakuri mod enable --name registry-browser
             sudo karakuri mod
             sudo karakuri ls --ns system-mod
+        
+        - name: Connect Registry
+          run: |
+            IPADDR=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+            sudo karakuri regctl connect --registry $IPADDR:5000
+            sudo karakuri regctl target
 
         - name: Push Image
           run: |
-            IPADDR=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-            sudo karakuri push --registry $IPADDR:5000 --image dns:system-mod
+            sudo karakuri push --image karakuri/dns:system-mod
+        
+        - name: Show Registry
+          run: |
+            sudo karakuri regctl get repository
+            sudo karakuri regctl get tag --repository karakuri/dns
+        
+        - name: Delete Image
+          run: |
+            sudo karakuri regctl delete --image karakuri/dns:system-mod
+            sudo karakuri regctl get tag --repository karakuri/dns
         
         - name: Disable Modules
           run: |

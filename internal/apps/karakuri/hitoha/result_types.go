@@ -209,3 +209,86 @@ func createResponseDeleteNamespace(result string, message string) ResponseDelete
 	}
 	return resp
 }
+
+// registry controller
+type ResponseGetTargetRegistry struct {
+	Result       string       `json:"result"`
+	RegistryInfo RegistryInfo `json:"registry_info"`
+}
+
+type ResponseConnectRegistry struct {
+	Result  string `json:"result"`
+	Message string `json:"message"`
+}
+
+type ResponseDisconnectRegistry struct {
+	Result  string `json:"result"`
+	Message string `json:"message"`
+}
+
+type ResponseShowRepository struct {
+	Result     string        `json:"result"`
+	Message    string        `json:"message"`
+	Repository RepogitryList `json:"repositories"`
+}
+
+type ResponseShowTag struct {
+	Result  string  `json:"result"`
+	Message string  `json:"message"`
+	Tag     TagList `json:"tag"`
+}
+
+type ResponseDeleteManifest struct {
+	Result  string `json:"result"`
+	Message string `json:"message"`
+}
+
+func createResponseGetTargetRegistry(result string, registry_info RegistryInfo) ResponseGetTargetRegistry {
+	resp := ResponseGetTargetRegistry{
+		Result:       result,
+		RegistryInfo: registry_info,
+	}
+	return resp
+}
+
+func createResponseConnectRegistry(result, message string) ResponseConnectRegistry {
+	resp := ResponseConnectRegistry{
+		Result:  result,
+		Message: message,
+	}
+	return resp
+}
+
+func createResponseDisconnectRegistry(result, message string) ResponseDisconnectRegistry {
+	resp := ResponseDisconnectRegistry{
+		Result:  result,
+		Message: message,
+	}
+	return resp
+}
+
+func createResponseShowRepository(result, message string, repository_list RepogitryList) ResponseShowRepository {
+	resp := ResponseShowRepository{
+		Result:     result,
+		Message:    message,
+		Repository: repository_list,
+	}
+	return resp
+}
+
+func createResponseShowTag(result, message string, tag_list TagList) ResponseShowTag {
+	resp := ResponseShowTag{
+		Result:  result,
+		Message: message,
+		Tag:     tag_list,
+	}
+	return resp
+}
+
+func createResponseDeleteManifest(result, message string) ResponseDeleteManifest {
+	resp := ResponseDeleteManifest{
+		Result:  result,
+		Message: message,
+	}
+	return resp
+}

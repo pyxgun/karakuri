@@ -17,7 +17,7 @@ COPY /etc/karakuri/modules/ingress/script /script
 COPY /etc/karakuri/modules/ingress/certconf /certconf
 COPY /etc/karakuri/modules/ingress/conf /conf
 
-RUN apk update && apk add openssl
+RUN apk update && apk add openssl vim
 
 RUN mkdir rootca interca server
 RUN openssl genrsa -out rootca/rootca.key
@@ -120,8 +120,13 @@ func createIngressModuleConfig() {
     send_timeout 130;
     client_body_timeout 130;
     client_header_timeout 130;
-    proxy_send_timeout 130;
+
+	proxy_send_timeout 130;
     proxy_read_timeout 130;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
 }
 `
 	if _, stat := os.Stat(karakuripkgs.KARAKURI_MOD_INGRESS + "/conf/server.conf"); stat != nil {
@@ -223,7 +228,13 @@ func setupIngressModule() {
 }
 
 func buildIngressImage(mod_info ModInfo) {
-	build_args := []string{"build", "--name", mod_info.ImageName, "--buildpath", mod_info.Path}
+	build_args := []string{
+		"build",
+		"--name",
+		mod_info.ImageName,
+		"--buildpath",
+		mod_info.Path,
+	}
 	build := exec.Command("karakuri", build_args...)
 	if err := build.Run(); err != nil {
 		panic(err)
@@ -268,7 +279,14 @@ func disableIngressModule() {
 }
 
 func EditIngressEntry() {
-	edit_args := []string{"exec", "--it", "--name", "ingress", "--cmd", "vi,/etc/nginx/conf.d/server.conf"}
+	edit_args := []string{
+		"exec",
+		"--it",
+		"--name",
+		"ingress",
+		"--cmd",
+		"vim,/etc/nginx/conf.d/server.conf",
+	}
 	edit := exec.Command("karakuri", edit_args...)
 
 	edit.Stdin = os.Stdin

@@ -218,3 +218,27 @@ func printModuleList(mod_list karakuri_mod.ModList) {
 		}
 	}
 }
+
+// registry controlleer
+func printTargetRegistry(registry_info hitoha.RegistryInfo) {
+	fmt.Println("Registry : " + registry_info.Target)
+	fmt.Println("Status   : " + registry_info.Status)
+}
+
+func printRepository(repository_list hitoha.RepogitryList) {
+	fmt.Println("REPOSITORY")
+	fmt.Println("--------------------------")
+	for _, entry := range repository_list.Repository {
+		fmt.Println(entry)
+	}
+}
+
+func printTag(repository string, tag_list hitoha.TagList) {
+	fmt.Println("REPOSITORY: " + repository)
+	fmt.Println("TAG")
+	fmt.Println("--------------")
+	for _, entry := range tag_list.Tag {
+		fmt.Println(entry)
+	}
+}
+

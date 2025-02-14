@@ -328,3 +328,76 @@ func DeleteDisableModule(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(resp)
 }
+
+// registry controller
+// GET
+// target registry
+func GetTargetRegistry(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := ShowTargetRegistry()
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// get repositories
+func GetShowRepositories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := ShowRepositories()
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// get tags
+func GetShowTags(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// retrieve parameter
+	params := mux.Vars(r)
+	// namespace
+	repository := strings.Replace(params["repository"], "!", "/", -1)
+
+	resp := ShowTags(repository)
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// POST
+// connect registry
+func PostConnectRegistry(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// retrieve parameter
+	params := mux.Vars(r)
+	// namespace
+	registry := params["registry"]
+
+	resp := ConnectRegistry(registry)
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// DELETE
+// disconnect registry
+func DeleteDisconnectRegistry(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := DisconnectRegistry()
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// delete manifest
+func DeleteDeleteManifest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// retrieve parameter
+	params := mux.Vars(r)
+	// image/tag
+	image_tag := strings.Replace(params["image-tag"], "!", "/", -1)
+
+	resp := DeleteImageManifest(image_tag)
+
+	json.NewEncoder(w).Encode(resp)
+}

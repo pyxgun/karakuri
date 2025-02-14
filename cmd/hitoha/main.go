@@ -55,6 +55,17 @@ func main() {
 	// DELETE
 	router.HandleFunc("/mod/disable/{mod_name}", hitoha.DeleteDisableModule).Methods("DELETE")
 
+	// registry controller
+	// GET
+	router.HandleFunc("/reg/target", hitoha.GetTargetRegistry).Methods("GET")
+	router.HandleFunc("/reg/repository", hitoha.GetShowRepositories).Methods("GET")
+	router.HandleFunc("/reg/tag/{repository}", hitoha.GetShowTags).Methods("GET")
+	// POST
+	router.HandleFunc("/reg/connect/{registry}", hitoha.PostConnectRegistry).Methods("POST")
+	// DELETE
+	router.HandleFunc("/reg/disconnect", hitoha.DeleteDisconnectRegistry).Methods("DELETE")
+	router.HandleFunc("/reg/delete/{image-tag}", hitoha.DeleteDeleteManifest).Methods("DELETE")
+
 	// execute server
 	fmt.Println("Listen on \"127.0.0.1:9806\" ...")
 	http.ListenAndServe("127.0.0.1:9806", router)
