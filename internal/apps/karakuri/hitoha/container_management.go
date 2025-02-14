@@ -30,8 +30,7 @@ type ContainerList struct {
 	List []ContainerInfo `json:"list"`
 }
 
-// ----------------
-
+// create new container list
 func newContainerList() {
 	var container_list_data ContainerList
 	data, _ := json.MarshalIndent(container_list_data, "", "  ")
@@ -40,6 +39,7 @@ func newContainerList() {
 	}
 }
 
+// add container to list
 func addNewContainer(config_spec karakuripkgs.ConfigSpec, image string, name string, namespace string) ContainerInfo {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -91,6 +91,7 @@ func addNewContainer(config_spec karakuripkgs.ConfigSpec, image string, name str
 	return container_info
 }
 
+// update container status
 func UpdateContainerStatus(id string, status string) ContainerInfo {
 	// read spec file
 	config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
@@ -136,6 +137,7 @@ func UpdateContainerStatus(id string, status string) ContainerInfo {
 	return new_container_info
 }
 
+// delete container from list
 func deleteContainerList(id string) {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -163,6 +165,7 @@ func deleteContainerList(id string) {
 	}
 }
 
+// sync container information
 func syncContainerList() {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -205,6 +208,7 @@ func syncContainerList() {
 	}
 }
 
+// show container list
 func ShowContainerList(namespace string) ResponseContainerList {
 	syncContainerList()
 
@@ -240,6 +244,7 @@ func ShowContainerList(namespace string) ResponseContainerList {
 	return createResponseContainerList("success", target_container_list)
 }
 
+// show container spec
 func ShowContainerSpec(id string) ResponseContainerSpec {
 	// retrieve config spec
 	config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
@@ -247,6 +252,7 @@ func ShowContainerSpec(id string) ResponseContainerSpec {
 	return createResponseSpecContainer("success", config_spec)
 }
 
+// check if container name already used
 func isContainerNameExists(name string) bool {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -268,6 +274,7 @@ func isContainerNameExists(name string) bool {
 	return false
 }
 
+// check container status
 func checkContainerStatus(id string) string {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -289,6 +296,7 @@ func checkContainerStatus(id string) string {
 	return ""
 }
 
+// retrieve container id
 func retrieveContainerId(name string) ResponseContainerId {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)
@@ -309,6 +317,7 @@ func retrieveContainerId(name string) ResponseContainerId {
 	return createResponseContainerId("error", "", "no such container, name: "+name)
 }
 
+// auto start container
 func autoStartContainer() {
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.HITOHA_CONTAINER_LIST)

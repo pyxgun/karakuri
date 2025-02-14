@@ -162,6 +162,18 @@ func removePushFiles(id string) {
 }
 
 func PushImage(registry, image_tag string) ResponsePushImage {
+	// target registry
+	target_registry := registry
+	if target_registry == "connected_registry" {
+		// get target registry
+		registry_info := getTargetRegistry()
+		// check status
+		if registry_info.Status != "connected" {
+			return createResponsePushImage("error", image_tag, "still not connected any registry.\nplease execute `karakuri regctl connect --registry {REGISTRY}` first.\nor specify `--registry` option.")
+		}
+		target_registry = registry_info.Target
+	}
+
 	// parse image:tag
 	image_tag_info := strings.Split(image_tag, ":")
 	image := image_tag_info[0]
@@ -184,18 +196,18 @@ func PushImage(registry, image_tag string) ResponsePushImage {
 	// calculate file sha256 sum and size
 	layer_digest := calcSha256("layer.tar.gz", image_id)
 	layer_size := calcFileSize("layer.tar.gz", image_id)
-	if res := uploadImage("layer.tar.gz", layer_digest, registry, image, image_id); !res {
+	if res := uploadImage("layer.tar.gz", layer_digest, target_registry, image, image_id); !res {
 		return createResponsePushImage("error", image_tag, "layer: "+layer_digest+" upload failed")
 	}
 	// upload config
 	config_digest := calcSha256("config.json", image_id)
 	config_size := calcFileSize("config.json", image_id)
-	if res := uploadImage("config.json", config_digest, registry, image, image_id); !res {
+	if res := uploadImage("config.json", config_digest, target_registry, image, image_id); !res {
 		return createResponsePushImage("error", image_tag, "config: "+config_digest+" upload failed")
 	}
 	// upload manifest
 	createManifest(image_id, config_digest, strconv.Itoa(config_size), layer_digest, strconv.Itoa(layer_size))
-	if res := uploadManifest(registry, image, tag, image_id); !res {
+	if res := uploadManifest(target_registry, image, tag, image_id); !res {
 		return createResponsePushImage("error", image_tag, "manifest upload failed")
 	}
 

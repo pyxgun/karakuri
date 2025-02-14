@@ -74,7 +74,13 @@ func setupRegistryBrowserModule() {
 }
 
 func buildRegistryBrowserImage(mod_info ModInfo) {
-	build_args := []string{"build", "--name", mod_info.ImageName, "--buildpath", mod_info.Path}
+	build_args := []string{
+		"build",
+		"--name",
+		mod_info.ImageName,
+		"--buildpath",
+		mod_info.Path,
+	}
 	build := exec.Command("karakuri", build_args...)
 	if err := build.Run(); err != nil {
 		panic(err)

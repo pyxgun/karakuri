@@ -45,7 +45,7 @@ func NewModList() {
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
 			Name:        "dns",
-			ImageName:   "dns:system-mod",
+			ImageName:   "karakuri/dns:latest",
 			Path:        karakuripkgs.KARAKURI_MOD_DNS,
 			Status:      "disable",
 			Description: "core DNS",
@@ -56,7 +56,7 @@ func NewModList() {
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
 			Name:        "registry",
-			ImageName:   "registry:system-mod",
+			ImageName:   "karakuri/registry:latest",
 			Path:        karakuripkgs.KARAKURI_MOD_REGISTRY,
 			Status:      "disable",
 			Description: "private registry listen on 5000",
@@ -67,7 +67,7 @@ func NewModList() {
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
 			Name:        "registry-browser",
-			ImageName:   "registry-browser:system-mod",
+			ImageName:   "karakuri/registry-browser:latest",
 			Path:        karakuripkgs.KARAKURI_MOD_REGISTRY_BROWSER,
 			Status:      "disable",
 			Description: "registry browser listen on 8081",
@@ -78,7 +78,7 @@ func NewModList() {
 	mod_list_data.List = append(mod_list_data.List,
 		ModInfo{
 			Name:        "ingress",
-			ImageName:   "ingress:system-mod",
+			ImageName:   "karakuri/ingress:latest",
 			Path:        karakuripkgs.KARAKURI_MOD_INGRESS,
 			Status:      "disable",
 			Description: "ingress controller for external access listen on 4443",

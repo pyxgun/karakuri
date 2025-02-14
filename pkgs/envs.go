@@ -47,6 +47,12 @@ const (
 	KARAKURI_MOD_INGRESS          = KARAKURI_MOD_ROOT + "/ingress"
 )
 
+// registry controller
+const (
+	KARAKURI_REGCTL_ROOT    = KARAKURI_ROOT + "/regctl"
+	KARAKURI_REGCTL_REGINFO = KARAKURI_REGCTL_ROOT + "/registry.json"
+)
+
 // runtime
 const (
 	RUNTIME = "/bin/futaba"
