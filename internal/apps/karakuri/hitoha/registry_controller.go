@@ -122,6 +122,8 @@ func verifyConnectionToRegistry() (string, bool) {
 }
 
 func checkConnectionStatus() bool {
+	checkTargetRegistryFile()
+
 	var bytes []byte
 	bytes, err := os.ReadFile(karakuripkgs.KARAKURI_REGCTL_REGINFO)
 	if err != nil {
