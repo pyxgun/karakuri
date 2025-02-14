@@ -1,4 +1,10 @@
 # `karakuri` Command List
+* [Container operation](#container-operations)
+* [Image operation](#image-operations)
+* [Namespace operation](#namespace-operations)
+* [Module operation](#module-operations)
+* [Registry Controller operation](#registry-controller-operation)
+
 ## Container operations
 The operations related to containers are as follows:
 | Operation | Description |
@@ -24,7 +30,7 @@ Create container
 | --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container (*2) | --mount=/mnt/data:/data |
 | --cmd | [arg_1],[arg2],... | no | Override entrypoint command | --cmd=sleep,100 |
 | --ns | [namespace] | no | Specify the namespace to which the container belongs | --ns=sandbox |
-| --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
+| --registry | [registry]:[port] | no | Specify registry | --registry=my.registry.local:5000 |
 
 *1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`  
 *2: If you want to mount multiple directory, enter the directories separated by commas. `--mount=/mnt/data:/data,/home/user:/home`
@@ -50,7 +56,7 @@ Run container (`create`+`start`)
 | --mount | [host_path]:[container_path] | no | Mount `[host_path]` to `[container_path]` in the container (*2) | --mount=/mnt/data:/data |
 | --cmd | [arg_1],[arg2],... | no | Override entrypoint command | --cmd=sleep,100 |
 | --ns | [namespace] | no | Specify the namespace to which the container belongs | --ns=sandbox |
-| --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
+| --registry | [registry]:[port] | no | Specify registry | --registry=my.registry.local:5000 |
 
 *1: If you want to map multiple port, enter the port information separated by commas. `--port=8080:80:tcp,2222:22:tcp`  
 *2: If you want to mount multiple directory, enter the directories separated by commas. `--mount=/mnt/data:/data,/home/user:/home`
@@ -125,6 +131,7 @@ The operations related to image are as follows:
 | --------- | ----------- |
 | [`images`](#images) | Show images |
 | [`pull`](#pull) | Pull image |
+| `push` | Push image |
 | [`rmi`](#pull) | Delete image |
 | [`build`](#build) | Build image |
 
@@ -138,7 +145,17 @@ Pull image
 | ------ | ----- | -------- | ----------- | ------- |
 | --image | [repositry]:[tag] | yes | Specify name of a image | --image=alpine:latest |
 | --os | [os]:[arch] | no | Specify image's os/archtecture | --os=linux:amd64 |
-| --repo | [registry]:[port] | no | Specify registry | --repo=my.registry.local:5000 |
+| --registry | [registry]:[port] | no | Specify registry | --registry=my.registry.local:5000 |
+
+### `push`
+Push image
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --image | [repositry]:[tag] | yes | Specify name of a image | --image=alpine:latest |
+| --registry | [registry]:[port] | no (*1) | Specify registry | --registry=my.registry.local:5000 |
+
+(*1) If you have already connected to the registry with this command, this option is not necessary.
+
 
 ### `rmi`
 Delete image
@@ -200,3 +217,44 @@ Disable module
 | Option | Value | Required | Description | Example |
 | ------ | ----- | -------- | ----------- | ------- |
 | --name | [module_name] | yes | module name | --name=dns |
+
+## Registry Controller operation
+The operations related to registry controller are as follows:
+| Operation | Description |
+| --------- | ----------- |
+| [`regctl target`](#regctl-target) | Show target registry |
+| [`regctl connect`](#regctl-connect) | Connect registry |
+| [`regctl disconnect`](#regctl-disconnect) | Disconnect registry |
+| [`regctl get repository`](#regctl-get-repository) | Get repository list |
+| [`regctl get tag`](#regctl-get-tag) | Get tag list |
+| [`regctl delete`](#regctl-delete) | Delete image |
+
+### `regctl target`
+Show target registry
+* No options available
+
+### `regctl connect`
+Connect registry
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --registry | [registry] | yes | registry ip/fqdn | --registry=192.168.1.10:5000 |
+
+### `regctl disconnect`
+Disconnect registry
+* No options available
+
+### `regctl get repository`
+Get repository list
+* No options available
+
+### `regctl get tag`
+Get tag list
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --repository | [repository] | yes | repository name | --repository=ubuntu |
+
+### `regctl delete`
+Delete image
+| Option | Value | Required | Description | Example |
+| ------ | ----- | -------- | ----------- | ------- |
+| --image | [repositry]:[tag] | yes | Specify name of a image | --image=alpine:latest |
