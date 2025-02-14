@@ -740,7 +740,6 @@ func requestEnableModule(mod_name string) (result bool, message string) {
 		return false, response.Message
 	}
 	return true, response.Message
-
 }
 
 func requestDisableModule(mod_name string) (result bool, message string) {
@@ -766,7 +765,6 @@ func requestDisableModule(mod_name string) (result bool, message string) {
 		return false, response.Message
 	}
 	return true, response.Message
-
 }
 
 func requestShowModule() (result bool, mod_list karakuri_mod.ModList) {
@@ -792,7 +790,6 @@ func requestShowModule() (result bool, mod_list karakuri_mod.ModList) {
 		return false, response.List
 	}
 	return true, response.List
-
 }
 
 func EnableModule(mod_name string) {
@@ -812,4 +809,201 @@ func ShowModuleList() {
 		return
 	}
 	printModuleList(module_list)
+}
+
+// ----------------------
+// registry controller
+// connect registry
+func requestConnectRegistry(registry string) (result bool, message string) {
+	url := karakuripkgs.SERVER + "/reg/connect/" + registry
+
+	req, _ := http.NewRequest("POST", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseConnectRegistry
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message
+	}
+	return true, response.Message
+}
+
+func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
+	url := karakuripkgs.SERVER + "/reg/target"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseGetTargetRegistry
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.RegistryInfo
+	}
+	return true, response.RegistryInfo
+}
+
+func requestGetRepository() (result bool, message string, repository_list hitoha.RepogitryList) {
+	url := karakuripkgs.SERVER + "/reg/repository"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseShowRepository
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message, response.Repository
+	}
+	return true, response.Message, response.Repository
+}
+
+func requestGetTag(repository string) (result bool, message string, tag_list hitoha.TagList) {
+	new_repository := strings.Replace(repository, "/", "!", -1)
+	url := karakuripkgs.SERVER + "/reg/tag/" + new_repository
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseShowTag
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message, response.Tag
+	}
+	return true, response.Message, response.Tag
+}
+
+func requestDisconnectRegistry() (result bool, message string) {
+	url := karakuripkgs.SERVER + "/reg/disconnect"
+
+	req, _ := http.NewRequest("DELETE", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseDisconnectRegistry
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message
+	}
+	return true, response.Message
+}
+
+func requestDeleteImageManifest(image_tag string) (result bool, message string) {
+	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
+	url := karakuripkgs.SERVER + "/reg/delete/" + new_image_tag
+
+	req, _ := http.NewRequest("DELETE", url, nil)
+
+	http_client := new(http.Client)
+	resp, err := http_client.Do(req)
+	if err != nil {
+		fmt.Println("Cannot connect to the Karakuri daemon. Please start the karakuri daemon.")
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	byte_array, _ := io.ReadAll(resp.Body)
+
+	var response hitoha.ResponseDeleteManifest
+	if err := json.Unmarshal(byte_array, &response); err != nil {
+		panic(err)
+	}
+
+	if response.Result != "success" {
+		return false, response.Message
+	}
+	return true, response.Message
+}
+
+func ConnectRegistry(registry string) {
+	_, message := requestConnectRegistry(registry)
+	fmt.Println(message)
+}
+
+func DisconnectRegistry() {
+	_, message := requestDisconnectRegistry()
+	fmt.Println(message)
+}
+
+func ShowTargetRegistry() {
+	_, registry_info := requestTargetRegistry()
+	printTargetRegistry(registry_info)
+}
+
+func ShowRepository() {
+	res, message, repository_list := requestGetRepository()
+	if !res {
+		fmt.Println(message)
+		return
+	}
+	printRepository(repository_list)
+}
+
+func ShowTag(repository string) {
+	res, message, tag_list := requestGetTag(repository)
+	if !res {
+		fmt.Println(message)
+		return
+	}
+	printTag(repository, tag_list)
+}
+
+func DeleteImageManifest(image_tag string) {
+	res, message := requestDeleteImageManifest(image_tag)
+	if !res {
+		fmt.Println(message)
+		return
+	}
+	fmt.Println(message)
 }

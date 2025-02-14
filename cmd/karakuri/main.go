@@ -29,6 +29,10 @@ func main() {
 		// mod
 		flag_mod_name         string
 		flag_mod_ingress_edit bool
+		// registry controller
+		flag_regctl_address    string
+		flag_regctl_repository string
+		flag_regctl_image_tag  string
 	)
 
 	app.Name = "Karakuri"
@@ -547,7 +551,83 @@ func main() {
 			},
 		},
 
-		// other
+		// registry controller
+		{
+			Name:  "regctl",
+			Usage: "registry controller",
+			Subcommands: []cli.Command{
+				{
+					Name:  "target",
+					Usage: "show target registry",
+					Action: func(c *cli.Context) {
+						karakuri.ShowTargetRegistry()
+					},
+				},
+				{
+					Name:  "connect",
+					Usage: "connect registry",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:        "registry",
+							Required:    true,
+							Destination: &flag_regctl_address,
+						},
+					},
+					Action: func(c *cli.Context) {
+						karakuri.ConnectRegistry(flag_regctl_address)
+					},
+				},
+				{
+					Name:  "disconnect",
+					Usage: "disconnect registry",
+					Action: func(c *cli.Context) {
+						karakuri.DisconnectRegistry()
+					},
+				},
+				{
+					Name: "get",
+					Subcommands: []cli.Command{
+						{
+							Name:  "repository",
+							Usage: "get repository",
+							Action: func(c *cli.Context) {
+								karakuri.ShowRepository()
+							},
+						},
+						{
+							Name:  "tag",
+							Usage: "get tags",
+							Flags: []cli.Flag{
+								cli.StringFlag{
+									Name:        "repository",
+									Required:    true,
+									Destination: &flag_regctl_repository,
+								},
+							},
+							Action: func(c *cli.Context) {
+								karakuri.ShowTag(flag_regctl_repository)
+							},
+						},
+					},
+				},
+				{
+					Name:  "delete",
+					Usage: "delete image",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:        "image",
+							Required:    true,
+							Destination: &flag_regctl_image_tag,
+						},
+					},
+					Action: func(c *cli.Context) {
+						karakuri.DeleteImageManifest(flag_regctl_image_tag)
+					},
+				},
+			},
+		},
+
+		// version
 		{
 			Name:  "version",
 			Usage: "show karakuri version",
