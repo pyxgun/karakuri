@@ -402,13 +402,14 @@ func main() {
 				karakuri.PullImage(flag_image, flag_os, flag_registry)
 			},
 		},
+		// push
 		{
 			Name:  "push",
 			Usage: "push image",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:        "registry",
-					Required:    true,
+					Value:       "connected_registry",
 					Destination: &flag_registry,
 				},
 				cli.StringFlag{

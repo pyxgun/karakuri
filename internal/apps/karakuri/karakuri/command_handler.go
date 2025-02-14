@@ -604,7 +604,7 @@ func PullImage(image_tag string, os_arch string, registry string) {
 }
 
 func PushImage(image_tag string, registry string) {
-	fmt.Println("Pushing image, [" + registry + "/" + image_tag + "] ...")
+	fmt.Println("Pushing image, " + image_tag + " ...")
 	result, message := requestPushImage(image_tag, registry)
 	if !result {
 		fmt.Println(message)
