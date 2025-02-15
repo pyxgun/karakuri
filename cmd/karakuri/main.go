@@ -33,8 +33,9 @@ func main() {
 		flag_regctl_address    string
 		flag_regctl_repository string
 		flag_regctl_image_tag  string
-		// cluster controller
-		flag_clsctl_target string
+		// node controller
+		flag_nodectl_node string
+		flag_nodectl_auth string
 	)
 
 	app.Name = "Karakuri"
@@ -632,55 +633,60 @@ func main() {
 
 		// cluster controller
 		{
-			Name:  "clsctl",
-			Usage: "cluster controller",
+			Name:  "nodectl",
+			Usage: "node controller",
 			Subcommands: []cli.Command{
 				{
 					Name:  "info",
-					Usage: "show target cluster",
+					Usage: "show target node",
 					Action: func(c *cli.Context) {
-						karakuri.ShowTargetCluster()
+						karakuri.ShowTargetNode()
 					},
 				},
 				{
 					Name:  "mode",
-					Usage: "change cluster mode",
+					Usage: "change mode",
 					Subcommands: []cli.Command{
 						{
-							Name:  "cluster",
-							Usage: "change mode to cluster-mode",
+							Name:  "remote-controll",
+							Usage: "change mode to remote-controll mode",
 							Action: func(c *cli.Context) {
-								karakuri.EnableClusterMode()
+								karakuri.EnableRemoteControllMode()
 							},
 						},
 						{
 							Name:  "stand-alone",
-							Usage: "change mode to stand-alone-mode",
+							Usage: "change mode to stand-alone mode",
 							Action: func(c *cli.Context) {
-								karakuri.DisableClusterMode()
+								karakuri.DisableRemoteControllMode()
 							},
 						},
 					},
 				},
 				{
 					Name:  "connect",
-					Usage: "connect cluster",
+					Usage: "connect node",
 					Flags: []cli.Flag{
 						cli.StringFlag{
-							Name:        "cluster",
+							Name:        "node",
 							Required:    true,
-							Destination: &flag_clsctl_target,
+							Destination: &flag_nodectl_node,
+						},
+						cli.StringFlag{
+							Name:        "auth",
+							Value:       "",
+							Destination: &flag_nodectl_auth,
 						},
 					},
 					Action: func(c *cli.Context) {
-						karakuri.ConnectCluster(flag_clsctl_target)
+						karakuri.ConnectNode(flag_nodectl_node, flag_nodectl_auth)
 					},
 				},
 				{
 					Name:  "disconnect",
 					Usage: "disconnect cluster",
 					Action: func(c *cli.Context) {
-						karakuri.DisconnectCluster()
+						karakuri.DisconnectNode()
 					},
 				},
 			},

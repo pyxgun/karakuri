@@ -55,8 +55,10 @@ const (
 
 // cluster controller
 const (
-	KARAKURI_CLSCTL_ROOT    = KARAKURI_ROOT + "/clsctl"
-	KARAKURI_CLSCTL_CLSINFO = KARAKURI_CLSCTL_ROOT + "/cluster.json"
+	KARAKURI_NODECTL_ROOT            = KARAKURI_ROOT + "/node"
+	KARAKURI_NODECTL_NODEINFO        = KARAKURI_NODECTL_ROOT + "/node.json"
+	KARAKURI_NODECTL_AUTHCODE        = KARAKURI_NODECTL_ROOT + "/authcode.json"
+	KARAKURI_NODECTL_REMOTE_AUTHCODE = KARAKURI_NODECTL_ROOT + "/remote_authcode.json"
 )
 
 // runtime

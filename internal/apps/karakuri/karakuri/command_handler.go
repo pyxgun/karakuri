@@ -74,11 +74,11 @@ type RequestShowContainerSpec struct {
 // container requests
 // request create container
 func requestCreateContainer(request_param RequestCreateContainer) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
@@ -86,7 +86,7 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "!", -1)
 
-	url := "http://" + cluster +
+	url := "http://" + node +
 		"/container/create/" +
 		new_image + "/" +
 		request_param.Port + "/" +
@@ -98,6 +98,15 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 		request_param.Restart
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -106,6 +115,16 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseContainerInfo
@@ -121,24 +140,33 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 
 // request start container
 func requestStartContainer(id, terminal string) (result bool, meessage string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 	// Check if it is an available option
-	if cluster != "localhost:9806" {
+	if node != karakuripkgs.SERVER {
 		if terminal == "true" {
-			fmt.Println("'--it' option is not available for remote clusters")
+			fmt.Println("'--it' option is not available for remote node")
 			os.Exit(1)
 		}
 	}
 
-	url := "http://" + cluster + "/container/start/" + id + "/" + terminal
+	url := "http://" + node + "/container/start/" + id + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -147,6 +175,16 @@ func requestStartContainer(id, terminal string) (result bool, meessage string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseContainerInfo
@@ -162,17 +200,17 @@ func requestStartContainer(id, terminal string) (result bool, meessage string) {
 
 // func requestRunContainer(image string, port string, mount string, cmd string, registry string) (bool, string) {
 func requestRunContainer(request_param RequestRunContainer, terminal string) (bool, string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 	// Check if it is an available option
-	if cluster != "localhost:9806" {
+	if node != karakuripkgs.SERVER {
 		if terminal == "true" {
-			fmt.Println("'--it' option is not available for remote clusters")
+			fmt.Println("'--it' option is not available for remote node")
 			os.Exit(1)
 		}
 	}
@@ -180,7 +218,7 @@ func requestRunContainer(request_param RequestRunContainer, terminal string) (bo
 	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "-", -1)
-	url := "http://" + cluster +
+	url := "http://" + node +
 		"/container/run/" +
 		new_image + "/" +
 		request_param.Port + "/" +
@@ -193,6 +231,15 @@ func requestRunContainer(request_param RequestRunContainer, terminal string) (bo
 		terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -201,6 +248,16 @@ func requestRunContainer(request_param RequestRunContainer, terminal string) (bo
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseRunContainer
@@ -216,25 +273,34 @@ func requestRunContainer(request_param RequestRunContainer, terminal string) (bo
 
 // request exec container
 func requestExecContainer(id, terminal, cmd string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 	// Check if it is an available option
-	if cluster != "localhost:9806" {
+	if node != karakuripkgs.SERVER {
 		if terminal == "true" {
-			fmt.Println("'--it' option is not available for remote clusters")
+			fmt.Println("'--it' option is not available for remote node")
 			os.Exit(1)
 		}
 	}
 
 	new_command := strings.Replace(cmd, "/", "-", -1)
-	url := "http://" + cluster + "/container/exec/" + id + "/" + new_command + "/" + terminal
+	url := "http://" + node + "/container/exec/" + id + "/" + new_command + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -243,6 +309,16 @@ func requestExecContainer(id, terminal, cmd string) (result bool, message string
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseContainerInfo
@@ -257,17 +333,26 @@ func requestExecContainer(id, terminal, cmd string) (result bool, message string
 }
 
 func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/container/ls/" + namespace
+	url := "http://" + node + "/container/ls/" + namespace
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -276,6 +361,16 @@ func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseContainerList
@@ -290,22 +385,31 @@ func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
 }
 
 func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 	// Check if it is an available option
-	if cluster != "localhost:9806" {
-		fmt.Println("'karakuri spec' command is not available for remote clusters")
+	if node != karakuripkgs.SERVER {
+		fmt.Println("'karakuri spec' command is not available for remote node")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/container/spec/" + id
+	url := "http://" + node + "/container/spec/" + id
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -314,6 +418,16 @@ func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseContainerSpec
@@ -329,17 +443,26 @@ func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
 }
 
 func requestStopContainer(id string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/container/kill/" + id
+	url := "http://" + node + "/container/kill/" + id
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -348,6 +471,16 @@ func requestStopContainer(id string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseStopContainer
@@ -362,17 +495,26 @@ func requestStopContainer(id string) (result bool, message string) {
 }
 
 func requestDeleteContainer(id string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/container/delete/" + id
+	url := "http://" + node + "/container/delete/" + id
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -381,6 +523,16 @@ func requestDeleteContainer(id string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseDeleteContainer
@@ -556,17 +708,26 @@ func DeleteContainer(request_param RequestDeleteContainer) {
 // image request
 // show image
 func requestShowImage() (string, hitoha.ImageList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/image/ls"
+	url := "http://" + node + "/image/ls"
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -575,6 +736,16 @@ func requestShowImage() (string, hitoha.ImageList) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseImageList
@@ -590,18 +761,27 @@ func requestShowImage() (string, hitoha.ImageList) {
 
 // pull image
 func requestPullImage(image_tag string, os_arch string, registry string) (result bool, inlocal bool) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := "http://" + cluster + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + registry
+	url := "http://" + node + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + registry
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -610,6 +790,16 @@ func requestPullImage(image_tag string, os_arch string, registry string) (result
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponsePullImage
@@ -629,18 +819,27 @@ func requestPullImage(image_tag string, os_arch string, registry string) (result
 
 // push image
 func requestPushImage(image_tag string, registry string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := "http://" + cluster + "/image/push/" + new_image_tag + "/" + registry
+	url := "http://" + node + "/image/push/" + new_image_tag + "/" + registry
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -649,6 +848,16 @@ func requestPushImage(image_tag string, registry string) (result bool, message s
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponsePushImage
@@ -665,17 +874,26 @@ func requestPushImage(image_tag string, registry string) (result bool, message s
 
 // delete image
 func requestDeleteImage(id string) bool {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/image/delete/" + id
+	url := "http://" + node + "/image/delete/" + id
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -684,6 +902,16 @@ func requestDeleteImage(id string) bool {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseDeleteImage
@@ -740,17 +968,26 @@ func DeleteImage(id string) {
 // ----------------------
 // namespace request
 func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/namespace/ls"
+	url := "http://" + node + "/namespace/ls"
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -759,6 +996,16 @@ func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseNamespaceList
@@ -773,17 +1020,26 @@ func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
 }
 
 func requestCreateNamespace(namespace string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/namespace/create/" + namespace
+	url := "http://" + node + "/namespace/create/" + namespace
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -792,6 +1048,16 @@ func requestCreateNamespace(namespace string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseCreateNamespace
@@ -806,17 +1072,26 @@ func requestCreateNamespace(namespace string) (result bool, message string) {
 }
 
 func requestDeleteNamespace(namespace string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/namespace/delete/" + namespace
+	url := "http://" + node + "/namespace/delete/" + namespace
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -825,6 +1100,16 @@ func requestDeleteNamespace(namespace string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseDeleteNamespace
@@ -860,17 +1145,26 @@ func DeleteNamespace(namespace string) {
 // ----------------------
 // module request
 func requestEnableModule(mod_name string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/mod/enable/" + mod_name
+	url := "http://" + node + "/mod/enable/" + mod_name
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -879,6 +1173,16 @@ func requestEnableModule(mod_name string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response karakuri_mod.ResponseEnableModule
@@ -893,17 +1197,26 @@ func requestEnableModule(mod_name string) (result bool, message string) {
 }
 
 func requestDisableModule(mod_name string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/mod/disable/" + mod_name
+	url := "http://" + node + "/mod/disable/" + mod_name
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -912,6 +1225,16 @@ func requestDisableModule(mod_name string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response karakuri_mod.ResponseEnableModule
@@ -926,17 +1249,26 @@ func requestDisableModule(mod_name string) (result bool, message string) {
 }
 
 func requestShowModule() (result bool, mod_list karakuri_mod.ModList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/mod/list"
+	url := "http://" + node + "/mod/list"
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -945,6 +1277,15 @@ func requestShowModule() (result bool, mod_list karakuri_mod.ModList) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response karakuri_mod.ResponseModuleList
@@ -981,17 +1322,26 @@ func ShowModuleList() {
 // registry controller
 // connect registry
 func requestConnectRegistry(registry string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/reg/connect/" + registry
+	url := "http://" + node + "/reg/connect/" + registry
 
 	req, _ := http.NewRequest("POST", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1000,6 +1350,16 @@ func requestConnectRegistry(registry string) (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseConnectRegistry
@@ -1014,17 +1374,26 @@ func requestConnectRegistry(registry string) (result bool, message string) {
 }
 
 func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/reg/target"
+	url := "http://" + node + "/reg/target"
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1033,6 +1402,16 @@ func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseGetTargetRegistry
@@ -1047,17 +1426,26 @@ func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
 }
 
 func requestGetRepository() (result bool, message string, repository_list hitoha.RepogitryList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/reg/repository"
+	url := "http://" + node + "/reg/repository"
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1066,6 +1454,16 @@ func requestGetRepository() (result bool, message string, repository_list hitoha
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseShowRepository
@@ -1080,18 +1478,27 @@ func requestGetRepository() (result bool, message string, repository_list hitoha
 }
 
 func requestGetTag(repository string) (result bool, message string, tag_list hitoha.TagList) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
 	new_repository := strings.Replace(repository, "/", "!", -1)
-	url := "http://" + cluster + "/reg/tag/" + new_repository
+	url := "http://" + node + "/reg/tag/" + new_repository
 
 	req, _ := http.NewRequest("GET", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1100,6 +1507,16 @@ func requestGetTag(repository string) (result bool, message string, tag_list hit
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseShowTag
@@ -1114,17 +1531,26 @@ func requestGetTag(repository string) (result bool, message string, tag_list hit
 }
 
 func requestDisconnectRegistry() (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
-	url := "http://" + cluster + "/reg/disconnect"
+	url := "http://" + node + "/reg/disconnect"
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1133,6 +1559,16 @@ func requestDisconnectRegistry() (result bool, message string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseDisconnectRegistry
@@ -1147,18 +1583,27 @@ func requestDisconnectRegistry() (result bool, message string) {
 }
 
 func requestDeleteImageManifest(image_tag string) (result bool, message string) {
-	// cluster
-	cluster_info := getTargetCluster()
-	cluster := cluster_info.Target
-	if cluster_info.Status != "connected" {
-		fmt.Println("cluster: " + cluster + " is not connected.")
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
 		os.Exit(1)
 	}
 
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := "http://" + cluster + "/reg/delete/" + new_image_tag
+	url := "http://" + node + "/reg/delete/" + new_image_tag
 
 	req, _ := http.NewRequest("DELETE", url, nil)
+	// set auth_code
+	if node != karakuripkgs.SERVER {
+		auth_code := getRemoteAuthCode(node)
+		if auth_code == "" {
+			fmt.Println("failed to retrieve auth code")
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", auth_code)
+	}
 
 	http_client := new(http.Client)
 	resp, err := http_client.Do(req)
@@ -1167,6 +1612,16 @@ func requestDeleteImageManifest(image_tag string) (result bool, message string) 
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	// check status
+	if resp.StatusCode == 401 {
+		fmt.Println("failed to authentication. please reconnect node: " + node)
+		os.Exit(1)
+	} else if resp.StatusCode != 200 {
+		fmt.Println("failed to request daemon.")
+		os.Exit(1)
+	}
+
 	byte_array, _ := io.ReadAll(resp.Body)
 
 	var response hitoha.ResponseDeleteManifest

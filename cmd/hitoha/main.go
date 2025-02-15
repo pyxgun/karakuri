@@ -1,21 +1,58 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"hitoha"
 	"karakuripkgs"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
+
+type AuthCode struct {
+	AuthCode string `json:"auth_code"`
+}
+
+// retrieve authentication code
+func getAuthCode() string {
+	var bytes []byte
+	bytes, err := os.ReadFile(karakuripkgs.KARAKURI_NODECTL_AUTHCODE)
+	if err != nil {
+		return ""
+	}
+
+	var auth_code AuthCode
+	if err := json.Unmarshal(bytes, &auth_code); err != nil {
+		panic(err)
+	}
+	return auth_code.AuthCode
+}
+
+// authentication middle-ware
+func authMiddleWare(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// validate token
+		token := r.Header.Get("Authorization")
+
+		if token != getAuthCode() {
+			http.Error(w, "Authentication Failed", http.StatusUnauthorized)
+			return
+		}
+
+		// call next handler
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	fmt.Println("karakuri version " + karakuripkgs.KARAKURI_VERSION)
 	// initial setup
 	hitoha.SetupEnvironment()
 
+	// local router
 	router := mux.NewRouter()
-
 	// Container
 	// GET
 	router.HandleFunc("/container/ls/{namespace}", hitoha.GetContainerList).Methods("GET")
@@ -66,6 +103,83 @@ func main() {
 	router.HandleFunc("/reg/disconnect", hitoha.DeleteDisconnectRegistry).Methods("DELETE")
 	router.HandleFunc("/reg/delete/{image-tag}", hitoha.DeleteDeleteManifest).Methods("DELETE")
 
+	// remote router
+	remote_router := mux.NewRouter()
+	// Container
+	// GET
+	remote_router.Handle("/container/ls/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerList))).Methods("GET")
+	//remote_router.HandleFunc("/container/ls/{namespace}", hitoha.GetContainerList).Methods("GET")
+	remote_router.Handle("/container/spec/{id}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerSpec))).Methods("GET")
+	//remote_router.HandleFunc("/container/spec/{id}", hitoha.GetContainerSpec).Methods("GET")
+	remote_router.Handle("/container/getid/{name}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerId))).Methods("GET")
+	//remote_router.HandleFunc("/container/getid/{name}", hitoha.GetContainerId).Methods("GET")
+	// POST
+	remote_router.Handle("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", authMiddleWare(http.HandlerFunc(hitoha.PostCreateContainer))).Methods("POST")
+	//remote_router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
+	remote_router.Handle("/container/start/{id}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostStartContainer))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	remote_router.Handle("/container/run/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostRunContainer))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	remote_router.Handle("/container/exec/{id}/{cmd}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostExecContainer))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	remote_router.Handle("/container/kill/{id}", authMiddleWare(http.HandlerFunc(hitoha.PostKillContainer))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	// DELETE
+	remote_router.Handle("/container/delete/{id}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteContainer))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+
+	// Image
+	// GET
+	remote_router.Handle("/image/ls", authMiddleWare(http.HandlerFunc(hitoha.GetShowImages))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	remote_router.Handle("/image/pull/{image-tag}/{os-arch}/{registry}", authMiddleWare(http.HandlerFunc(hitoha.GetPullImage))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	// POST
+	remote_router.Handle("/image/push/{image-tag}/{registry}", authMiddleWare(http.HandlerFunc(hitoha.PostPushImage))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	// DELETE
+	remote_router.Handle("/image/delete/{id}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteImage))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+
+	// namespcae
+	// GET
+	remote_router.Handle("/namespace/ls", authMiddleWare(http.HandlerFunc(hitoha.GetNamespaceList))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	// POST
+	remote_router.Handle("/namespace/create/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.PostNamespace))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	// DELETE
+	remote_router.Handle("/namespace/delete/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.DeleteNamespace))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+
+	// module
+	// GET
+	remote_router.Handle("/mod/list", authMiddleWare(http.HandlerFunc(hitoha.GetModuleList))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	// POST
+	remote_router.Handle("/mod/enable/{mod_name}", authMiddleWare(http.HandlerFunc(hitoha.PostEnableModule))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	// DELETE
+	remote_router.Handle("/mod/disable/{mod_name}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDisableModule))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+
+	// registry controller
+	// GET
+	remote_router.Handle("/reg/target", authMiddleWare(http.HandlerFunc(hitoha.GetTargetRegistry))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	remote_router.Handle("/reg/repository", authMiddleWare(http.HandlerFunc(hitoha.GetShowRepositories))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	remote_router.Handle("/reg/tag/{repository}", authMiddleWare(http.HandlerFunc(hitoha.GetShowTags))).Methods("GET")
+	//remote_router.HandleFunc(, ).Methods("GET")
+	// POST
+	remote_router.Handle("/reg/connect/{registry}", authMiddleWare(http.HandlerFunc(hitoha.PostConnectRegistry))).Methods("POST")
+	//remote_router.HandleFunc(, ).Methods("POST")
+	// DELETE
+	remote_router.Handle("/reg/disconnect", authMiddleWare(http.HandlerFunc(hitoha.DeleteDisconnectRegistry))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+	remote_router.Handle("/reg/delete/{image-tag}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteManifest))).Methods("DELETE")
+	//remote_router.HandleFunc(, ).Methods("DELETE")
+
 	// execute server
 	// local
 	go func() {
@@ -75,7 +189,7 @@ func main() {
 	// listen for cluster controller
 	go func() {
 		fmt.Println("Listen on \"0.0.0.0:9816\" ...")
-		http.ListenAndServe("0.0.0.0:9816", router)
+		http.ListenAndServe("0.0.0.0:9816", remote_router)
 	}()
 
 	select {}

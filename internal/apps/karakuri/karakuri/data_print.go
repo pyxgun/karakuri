@@ -12,8 +12,8 @@ import (
 )
 
 func printContainerList(container_list hitoha.ContainerList, namespace string) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	if namespace != "all" {
 		fmt.Printf("CONTAINER ID\t| Name\t\t\t| IMAGE\t\t\t| STATUS\t| PORT\t\t\t\t| COMMAND\n")
 		fmt.Printf("----------------+-----------------------+-----------------------+---------------+-------------------------------+--------------------------------------\n")
@@ -161,8 +161,8 @@ func printContainerSpec(spec karakuripkgs.ConfigSpec) {
 }
 
 func printImageList(image_list hitoha.ImageList) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	// print image list
 	fmt.Printf("REPOSITORY\t\t\t\t| TAG\t\t\t| ID\n")
 	fmt.Printf("----------------------------------------+-----------------------+-----------------\n")
@@ -172,8 +172,8 @@ func printImageList(image_list hitoha.ImageList) {
 }
 
 func printNamespaceList(namespace_list hitoha.NamespaceList) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	fmt.Printf("NAMESPACE\t| NETWORK I/F\t| ADDRESS\n")
 	fmt.Printf("----------------+---------------+----------------\n")
 	for _, entry := range namespace_list.Namespaces {
@@ -187,9 +187,9 @@ func PrintKarakuriVersion() {
 
 func ShowContainerLog(id string, name string) {
 	// Check if it is an available option
-	cluster := getTargetCluster().Target
-	if cluster != "localhost:9806" {
-		fmt.Println("'karakuri logs' command is not available for remote clusters")
+	node := getTargetNode().Target
+	if node != "localhost:9806" {
+		fmt.Println("'karakuri logs' command is not available for remote node")
 		os.Exit(1)
 	}
 	container_id := id
@@ -216,8 +216,8 @@ func ShowContainerLog(id string, name string) {
 
 // module
 func printModuleList(mod_list karakuri_mod.ModList) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	fmt.Println("Enabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "enable" {
@@ -235,15 +235,15 @@ func printModuleList(mod_list karakuri_mod.ModList) {
 
 // registry controlleer
 func printTargetRegistry(registry_info hitoha.RegistryInfo) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	fmt.Println("Registry : " + registry_info.Target)
 	fmt.Println("Status   : " + registry_info.Status)
 }
 
 func printRepository(repository_list hitoha.RepogitryList) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	fmt.Println("REPOSITORY")
 	fmt.Println("--------------------------")
 	for _, entry := range repository_list.Repository {
@@ -252,8 +252,8 @@ func printRepository(repository_list hitoha.RepogitryList) {
 }
 
 func printTag(repository string, tag_list hitoha.TagList) {
-	cluster := getTargetCluster().Target
-	fmt.Println("[Cluster] " + cluster)
+	node := getTargetNode().Target
+	fmt.Println("[Node] " + node)
 	fmt.Println("REPOSITORY: " + repository)
 	fmt.Println("TAG")
 	fmt.Println("--------------")
@@ -262,10 +262,10 @@ func printTag(repository string, tag_list hitoha.TagList) {
 	}
 }
 
-// cluster controller
-func printTargetCluster(cluster_info ClusterInfo) {
-	fmt.Println("Mode           : " + cluster_info.Mode)
+// node controller
+func printTargetNode(node_info NodeInfo) {
+	fmt.Println("Mode : " + node_info.Mode)
 	fmt.Println()
-	fmt.Println("Target Cluster : " + cluster_info.Target)
-	fmt.Println("Status         : " + cluster_info.Status)
+	fmt.Println("Target Node : " + node_info.Target)
+	fmt.Println("Status      : " + node_info.Status)
 }
