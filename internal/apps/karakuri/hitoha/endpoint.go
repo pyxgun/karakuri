@@ -107,8 +107,9 @@ func PostStartContainer(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// id
 	id := params["id"]
+	terminal := params["terminal"]
 
-	resp := StartContainer(id)
+	resp := StartContainer(id, terminal)
 
 	json.NewEncoder(w).Encode(resp)
 }
@@ -137,6 +138,8 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 	}
 	// restart
 	restart := params["restart"]
+	// terminal
+	terminal := params["terminal"]
 
 	//resp := RunContainer(image, port, mount, cmd, registry)
 	resp := RunContainer(ParamsRunContainer{
@@ -148,6 +151,7 @@ func PostRunContainer(w http.ResponseWriter, r *http.Request) {
 		Cmd:       cmd,
 		Registry:  registry,
 		Restart:   restart,
+		Terminal:  terminal,
 	})
 
 	json.NewEncoder(w).Encode(resp)
@@ -160,8 +164,10 @@ func PostExecContainer(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// id
 	id := params["id"]
+	cmd := strings.Replace(params["cmd"], "-", "/", -1)
+	terminal := params["terminal"]
 
-	resp := ExecContainer(id)
+	resp := ExecContainer(id, terminal, cmd)
 
 	json.NewEncoder(w).Encode(resp)
 }
