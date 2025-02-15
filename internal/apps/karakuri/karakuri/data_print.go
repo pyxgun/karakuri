@@ -13,7 +13,7 @@ import (
 
 func printContainerList(container_list hitoha.ContainerList, namespace string) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	if namespace != "all" {
 		fmt.Printf("CONTAINER ID\t| Name\t\t\t| IMAGE\t\t\t| STATUS\t| PORT\t\t\t\t| COMMAND\n")
 		fmt.Printf("----------------+-----------------------+-----------------------+---------------+-------------------------------+--------------------------------------\n")
@@ -162,7 +162,7 @@ func printContainerSpec(spec karakuripkgs.ConfigSpec) {
 
 func printImageList(image_list hitoha.ImageList) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	// print image list
 	fmt.Printf("REPOSITORY\t\t\t\t| TAG\t\t\t| ID\n")
 	fmt.Printf("----------------------------------------+-----------------------+-----------------\n")
@@ -173,7 +173,7 @@ func printImageList(image_list hitoha.ImageList) {
 
 func printNamespaceList(namespace_list hitoha.NamespaceList) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	fmt.Printf("NAMESPACE\t| NETWORK I/F\t| ADDRESS\n")
 	fmt.Printf("----------------+---------------+----------------\n")
 	for _, entry := range namespace_list.Namespaces {
@@ -217,7 +217,7 @@ func ShowContainerLog(id string, name string) {
 // module
 func printModuleList(mod_list karakuri_mod.ModList) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	fmt.Println("Enabled:")
 	for _, entry := range mod_list.List {
 		if entry.Status == "enable" {
@@ -236,14 +236,14 @@ func printModuleList(mod_list karakuri_mod.ModList) {
 // registry controlleer
 func printTargetRegistry(registry_info hitoha.RegistryInfo) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	fmt.Println("Registry : " + registry_info.Target)
 	fmt.Println("Status   : " + registry_info.Status)
 }
 
 func printRepository(repository_list hitoha.RepogitryList) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	fmt.Println("REPOSITORY")
 	fmt.Println("--------------------------")
 	for _, entry := range repository_list.Repository {
@@ -253,7 +253,7 @@ func printRepository(repository_list hitoha.RepogitryList) {
 
 func printTag(repository string, tag_list hitoha.TagList) {
 	node := getTargetNode().Target
-	fmt.Println("[Node] " + node)
+	fmt.Println("[Node] " + node + "\n")
 	fmt.Println("REPOSITORY: " + repository)
 	fmt.Println("TAG")
 	fmt.Println("--------------")

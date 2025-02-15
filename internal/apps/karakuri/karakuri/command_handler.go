@@ -572,7 +572,11 @@ func StartContainer(request_param RequestStartContainer) {
 		if request_param.Terminal {
 			// execute runtime: start
 			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
-			hitoha.UpdateContainerStatus(container_id, "stopped")
+			// stop container
+			StopContainer(RequestStopContainer{
+				Id:   container_id,
+				Name: "none",
+			})
 		} else {
 			fmt.Println("container: " + container_id + " start success.")
 		}
@@ -591,8 +595,11 @@ func RunContainer(request_param RequestRunContainer) {
 		if request_param.Terminal {
 			// execute runtime: start
 			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
-
-			hitoha.UpdateContainerStatus(container_id, "stopped")
+			// stop container
+			StopContainer(RequestStopContainer{
+				Id:   container_id,
+				Name: "none",
+			})
 			// delete container
 			if request_param.Remove {
 				DeleteContainer(RequestDeleteContainer{
