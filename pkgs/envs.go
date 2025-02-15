@@ -53,8 +53,16 @@ const (
 	KARAKURI_REGCTL_REGINFO = KARAKURI_REGCTL_ROOT + "/registry.json"
 )
 
+// cluster controller
+const (
+	KARAKURI_NODECTL_ROOT            = KARAKURI_ROOT + "/node"
+	KARAKURI_NODECTL_NODEINFO        = KARAKURI_NODECTL_ROOT + "/node.json"
+	KARAKURI_NODECTL_AUTHCODE        = KARAKURI_NODECTL_ROOT + "/authcode.json"
+	KARAKURI_NODECTL_REMOTE_AUTHCODE = KARAKURI_NODECTL_ROOT + "/remote_authcode.json"
+)
+
 // runtime
 const (
 	RUNTIME = "/bin/futaba"
-	SERVER  = "http://localhost:9806"
+	SERVER  = "localhost:9806"
 )

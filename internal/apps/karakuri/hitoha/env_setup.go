@@ -2,9 +2,11 @@ package hitoha
 
 import (
 	"encoding/json"
+	"errors"
 	"futaba"
 	"karakuri_mod"
 	"karakuripkgs"
+	"net"
 	"os"
 	"os/exec"
 )
@@ -146,6 +148,110 @@ func changeContainerStatusToStop() {
 	}
 }
 
+type NodeInfo struct {
+	Mode   string `json:"mode"`
+	Target string `json:"target"`
+	Status string `json:"connection_status"`
+}
+
+const (
+	STAND_ALONE_MODE = "stand-alone"
+)
+
+func checkTargetNodeFile() {
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_NODECTL_ROOT); stat != nil {
+		if err := os.MkdirAll(karakuripkgs.KARAKURI_NODECTL_ROOT, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+
+	if _, stat := os.Stat(karakuripkgs.KARAKURI_NODECTL_NODEINFO); stat != nil {
+		var node_info NodeInfo
+		node_info.Mode = STAND_ALONE_MODE
+		node_info.Target = karakuripkgs.SERVER
+		node_info.Status = "connected"
+		data, _ := json.MarshalIndent(node_info, "", "  ")
+		if err := os.WriteFile(karakuripkgs.KARAKURI_NODECTL_NODEINFO, data, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func isPrivateIP(ip net.IP) bool {
+	var prvMasks []*net.IPNet
+
+	for _, cidr := range []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+	} {
+		_, mask, _ := net.ParseCIDR(cidr)
+		prvMasks = append(prvMasks, mask)
+	}
+
+	for _, mask := range prvMasks {
+		if mask.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func getDeviceIpAddress() (net.IP, error) {
+	ift, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ifi := range ift {
+		addrs, err := ifi.Addrs()
+		if err != nil {
+			return nil, err
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if isPrivateIP(ip) {
+				return ip, nil
+			}
+		}
+	}
+	return nil, errors.New("no IP")
+}
+
+func getTargetNode() NodeInfo {
+	checkTargetNodeFile()
+
+	var bytes []byte
+	bytes, err := os.ReadFile(karakuripkgs.KARAKURI_NODECTL_NODEINFO)
+	if err != nil {
+		panic(err)
+	}
+
+	var node_info NodeInfo
+	if err := json.Unmarshal(bytes, &node_info); err != nil {
+		panic(err)
+	}
+
+	return node_info
+}
+
+func setupRemoteController() {
+	node_mode := getTargetNode().Mode
+	if node_mode == STAND_ALONE_MODE {
+		device_address, _ := getDeviceIpAddress()
+		iptables_cmd := exec.Command("iptables", "-A", "INPUT", "-p", "tcp", "-i", karakuripkgs.HOST_NIC, "-d", device_address.String(), "--dport", "9816", "-j", "DROP")
+		if err := iptables_cmd.Run(); err != nil {
+			panic(err)
+		}
+	}
+}
+
 func checkInitStatus() bool {
 	if _, err := os.ReadFile(INIT_FLAG); err != nil {
 		return false
@@ -165,6 +271,8 @@ func setupNetworks() {
 	setupSystemModTrafficRule()
 	// setup ip forwarding
 	setupIpForward()
+	// setup remote controller
+	setupRemoteController()
 }
 
 func createInitFile() {

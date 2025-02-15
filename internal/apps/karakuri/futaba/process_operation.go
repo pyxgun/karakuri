@@ -370,9 +370,9 @@ func ExecContainer(id string, terminal bool, command string) {
 	cmd := strings.Split(command, ",")
 
 	pid := config_spec.Process.Pid
-	args := []string{"-t", strconv.Itoa(pid), "--all"}
+	args := []string{"nsenter", "-t", strconv.Itoa(pid), "--all"}
 	args = append(args, cmd...)
-	nsenter := exec.Command("nsenter", args...)
+	nsenter := exec.Command("sudo", args...)
 
 	nsenter.Stdin = os.Stdin
 	nsenter.Stdout = os.Stdout
