@@ -1,6 +1,7 @@
 package hitoha
 
 import (
+	"fmt"
 	"karakuri_mod"
 	"karakuripkgs"
 	"strings"
@@ -26,6 +27,7 @@ type ParamsRunContainer struct {
 	Cmd       string
 	Registry  string
 	Restart   string
+	Terminal  string
 }
 
 func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
@@ -143,21 +145,36 @@ func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
 	return createResponseContainerInfo("success", container_info, "container create success.")
 }
 
-func StartContainer(id string) ResponseContainerInfo {
+func StartContainer(id string, terminal string) ResponseContainerInfo {
 	// check container status
 	container_status := checkContainerStatus(id)
 	if container_status == "created" || container_status == "stopped" {
 		// update status: running
 		container_info := UpdateContainerStatus(id, "running")
+		// setup port forward
+		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
+		SetupPortForwarding("add", config_spec.Network)
+		// if terminal is "false", execute from hitoha
+		if terminal == "false" {
+			// set status to "running"
+			UpdateContainerStatus(id, "running")
+			// start container
+			karakuripkgs.RuntimeStart(id, false)
+		}
 		return createResponseContainerInfo("success", container_info, "container: "+id+" start success.")
 	} else {
 		return createResponseContainerInfo("error", ContainerInfo{}, "container: "+id+" is already up and running.")
 	}
 }
 
-func ExecContainer(id string) ResponseContainerInfo {
+func ExecContainer(id, terminal, cmd string) ResponseContainerInfo {
 	container_status := checkContainerStatus(id)
 	if container_status == "running" {
+		if terminal == "false" {
+			// if terminal is "false", execute from hitoha
+			fmt.Printf("%s: %s\n", id, cmd)
+			karakuripkgs.RuntimeExec(id, false, cmd)
+		}
 		return createResponseContainerInfo("success", ContainerInfo{}, "container exec success.")
 	} else {
 		return createResponseContainerInfo("error", ContainerInfo{}, "container: "+id+" is not running.")
@@ -169,7 +186,7 @@ func RunContainer(params ParamsRunContainer) ResponseRunContainer {
 	resp := CreateContainer(ParamsCreateContainer{
 		ImageInfo: params.ImageInfo,
 		Port:      params.Port,
-		Mount:     params.Port,
+		Mount:     params.Mount,
 		Cmd:       params.Cmd,
 		Registry:  params.Registry,
 		Name:      params.Name,
@@ -181,7 +198,7 @@ func RunContainer(params ParamsRunContainer) ResponseRunContainer {
 	}
 	id := resp.Container.Id
 
-	resp = StartContainer(id)
+	resp = StartContainer(id, params.Terminal)
 
 	return createResponseRunContainer("success", id, resp.Message)
 }
@@ -191,6 +208,11 @@ func KillContainer(id string) ResponseStopContainer {
 	if container_status == "running" {
 		// execute runtime: kill
 		karakuripkgs.RuntimeKill(id)
+
+		// setup port forward
+		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
+		// delete port forward
+		SetupPortForwarding("delete", config_spec.Network)
 
 		// update status
 		UpdateContainerStatus(id, "stopped")

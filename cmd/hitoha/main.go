@@ -23,9 +23,9 @@ func main() {
 	router.HandleFunc("/container/getid/{name}", hitoha.GetContainerId).Methods("GET")
 	// POST
 	router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
-	router.HandleFunc("/container/start/{id}", hitoha.PostStartContainer).Methods("POST")
-	router.HandleFunc("/container/run/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostRunContainer).Methods("POST")
-	router.HandleFunc("/container/exec/{id}", hitoha.PostExecContainer).Methods("POST")
+	router.HandleFunc("/container/start/{id}/{terminal}", hitoha.PostStartContainer).Methods("POST")
+	router.HandleFunc("/container/run/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}/{terminal}", hitoha.PostRunContainer).Methods("POST")
+	router.HandleFunc("/container/exec/{id}/{cmd}/{terminal}", hitoha.PostExecContainer).Methods("POST")
 	router.HandleFunc("/container/kill/{id}", hitoha.PostKillContainer).Methods("POST")
 	// DELETE
 	router.HandleFunc("/container/delete/{id}", hitoha.DeleteDeleteContainer).Methods("DELETE")

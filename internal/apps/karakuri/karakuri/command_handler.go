@@ -111,8 +111,8 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 }
 
 // request start container
-func requestStartContainer(id string) (result bool, meessage string) {
-	url := karakuripkgs.SERVER + "/container/start/" + id
+func requestStartContainer(id, terminal string) (result bool, meessage string) {
+	url := karakuripkgs.SERVER + "/container/start/" + id + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -137,7 +137,7 @@ func requestStartContainer(id string) (result bool, meessage string) {
 }
 
 // func requestRunContainer(image string, port string, mount string, cmd string, registry string) (bool, string) {
-func requestRunContainer(request_param RequestRunContainer) (bool, string) {
+func requestRunContainer(request_param RequestRunContainer, terminal string) (bool, string) {
 	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "-", -1)
@@ -150,7 +150,8 @@ func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 		request_param.Registry + "/" +
 		request_param.Name + "/" +
 		request_param.Namespace + "/" +
-		request_param.Restart
+		request_param.Restart + "/" +
+		terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -175,8 +176,9 @@ func requestRunContainer(request_param RequestRunContainer) (bool, string) {
 }
 
 // request exec container
-func requestExecContainer(id string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/container/exec/" + id
+func requestExecContainer(id, terminal, cmd string) (result bool, message string) {
+	new_command := strings.Replace(cmd, "/", "-", -1)
+	url := karakuripkgs.SERVER + "/container/exec/" + id + "/" + new_command + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -316,54 +318,55 @@ func StartContainer(request_param RequestStartContainer) {
 	if container_id == "" {
 		return
 	}
-	if res, message := requestStartContainer(container_id); !res {
+	terminal := "false"
+	if request_param.Terminal {
+		terminal = "true"
+	}
+	if res, message := requestStartContainer(container_id, terminal); !res {
 		fmt.Println(message)
 	} else {
-		// setup port forward
-		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-		hitoha.SetupPortForwarding("add", config_spec.Network)
-
-		// execute runtime: start
-		karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
-
-		// update status
+		// if terminal is true, execute from karakuri
 		if request_param.Terminal {
+			// execute runtime: start
+			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
+			// setup port forward
+			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
 			hitoha.UpdateContainerStatus(container_id, "stopped")
 			// delete port forward
 			hitoha.SetupPortForwarding("delete", config_spec.Network)
 		} else {
-			hitoha.UpdateContainerStatus(container_id, "running")
 			fmt.Println("container: " + container_id + " start success.")
 		}
 	}
 }
 
 func RunContainer(request_param RequestRunContainer) {
-	res, container_id := requestRunContainer(request_param)
+	terminal := "false"
+	if request_param.Terminal {
+		terminal = "true"
+	}
+	res, container_id := requestRunContainer(request_param, terminal)
 	if !res {
 		fmt.Println("ERR: failed to run container")
-	}
-
-	// setup port forward
-	config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-	hitoha.SetupPortForwarding("add", config_spec.Network)
-
-	// execute runtime: start
-	karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
-
-	if request_param.Terminal {
-		hitoha.UpdateContainerStatus(container_id, "stopped")
-		// delete port forward
-		hitoha.SetupPortForwarding("delete", config_spec.Network)
-		// delete container
-		if request_param.Remove {
-			DeleteContainer(RequestDeleteContainer{
-				Id:   container_id,
-				Name: "none",
-			})
-		}
 	} else {
-		hitoha.UpdateContainerStatus(container_id, "running")
+		if request_param.Terminal {
+			// execute runtime: start
+			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
+
+			hitoha.UpdateContainerStatus(container_id, "stopped")
+			// delete port forward
+			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
+			hitoha.SetupPortForwarding("delete", config_spec.Network)
+			// delete container
+			if request_param.Remove {
+				DeleteContainer(RequestDeleteContainer{
+					Id:   container_id,
+					Name: "none",
+				})
+			}
+		} else {
+			hitoha.UpdateContainerStatus(container_id, "running")
+		}
 	}
 }
 
@@ -372,12 +375,18 @@ func ExecContainer(request_param RequestExecContainer) {
 	if container_id == "" {
 		return
 	}
-	if res, message := requestExecContainer(container_id); !res {
+	terminal := "false"
+	if request_param.Terminal {
+		terminal = "true"
+	}
+	if res, message := requestExecContainer(container_id, terminal, request_param.Cmd); !res {
 		fmt.Println(message)
 		return
 	} else {
-		// execute runtime: start
-		karakuripkgs.RuntimeExec(container_id, request_param.Terminal, request_param.Cmd)
+		if request_param.Terminal {
+			// execute runtime: exec
+			karakuripkgs.RuntimeExec(container_id, request_param.Terminal, request_param.Cmd)
+		}
 	}
 }
 
@@ -389,11 +398,6 @@ func StopContainer(request_param RequestStopContainer) {
 	if res, message := requestStopContainer(container_id); !res {
 		fmt.Println(message)
 	} else {
-		// setup port forward
-		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-		// delete port forward
-		hitoha.SetupPortForwarding("delete", config_spec.Network)
-
 		fmt.Println(message)
 	}
 }
