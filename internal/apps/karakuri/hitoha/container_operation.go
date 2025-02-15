@@ -142,6 +142,10 @@ func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
 	if err := karakuripkgs.RuntimeCreate(); err != nil {
 		return createResponseContainerInfo("error", container_info, "failed to create container.")
 	}
+
+	// setup port forward
+	SetupPortForwarding("add", config_spec.Network)
+
 	return createResponseContainerInfo("success", container_info, "container create success.")
 }
 
@@ -151,9 +155,6 @@ func StartContainer(id string, terminal string) ResponseContainerInfo {
 	if container_status == "created" || container_status == "stopped" {
 		// update status: running
 		container_info := UpdateContainerStatus(id, "running")
-		// setup port forward
-		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
-		SetupPortForwarding("add", config_spec.Network)
 		// if terminal is "false", execute from hitoha
 		if terminal == "false" {
 			// set status to "running"
@@ -209,11 +210,6 @@ func KillContainer(id string) ResponseStopContainer {
 		// execute runtime: kill
 		karakuripkgs.RuntimeKill(id)
 
-		// setup port forward
-		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
-		// delete port forward
-		SetupPortForwarding("delete", config_spec.Network)
-
 		// update status
 		UpdateContainerStatus(id, "stopped")
 
@@ -226,6 +222,10 @@ func KillContainer(id string) ResponseStopContainer {
 func DeleteContainer(id string) ResponseDeleteContainer {
 	container_status := checkContainerStatus(id)
 	if container_status == "created" || container_status == "stopped" {
+		// setup port forward
+		config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + id)
+		SetupPortForwarding("delete", config_spec.Network)
+
 		// execute runtime: ddelete
 		karakuripkgs.RuntimeDelete(id)
 

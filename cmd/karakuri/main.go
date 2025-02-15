@@ -33,6 +33,8 @@ func main() {
 		flag_regctl_address    string
 		flag_regctl_repository string
 		flag_regctl_image_tag  string
+		// cluster controller
+		flag_clsctl_target string
 	)
 
 	app.Name = "Karakuri"
@@ -623,6 +625,62 @@ func main() {
 					},
 					Action: func(c *cli.Context) {
 						karakuri.DeleteImageManifest(flag_regctl_image_tag)
+					},
+				},
+			},
+		},
+
+		// cluster controller
+		{
+			Name:  "clsctl",
+			Usage: "cluster controller",
+			Subcommands: []cli.Command{
+				{
+					Name:  "info",
+					Usage: "show target cluster",
+					Action: func(c *cli.Context) {
+						karakuri.ShowTargetCluster()
+					},
+				},
+				{
+					Name:  "mode",
+					Usage: "change cluster mode",
+					Subcommands: []cli.Command{
+						{
+							Name:  "cluster",
+							Usage: "change mode to cluster-mode",
+							Action: func(c *cli.Context) {
+								karakuri.EnableClusterMode()
+							},
+						},
+						{
+							Name:  "stand-alone",
+							Usage: "change mode to stand-alone-mode",
+							Action: func(c *cli.Context) {
+								karakuri.DisableClusterMode()
+							},
+						},
+					},
+				},
+				{
+					Name:  "connect",
+					Usage: "connect cluster",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:        "cluster",
+							Required:    true,
+							Destination: &flag_clsctl_target,
+						},
+					},
+					Action: func(c *cli.Context) {
+						karakuri.ConnectCluster(flag_clsctl_target)
+					},
+				},
+				{
+					Name:  "disconnect",
+					Usage: "disconnect cluster",
+					Action: func(c *cli.Context) {
+						karakuri.DisconnectCluster()
 					},
 				},
 			},

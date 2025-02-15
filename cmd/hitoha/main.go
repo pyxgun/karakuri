@@ -67,6 +67,16 @@ func main() {
 	router.HandleFunc("/reg/delete/{image-tag}", hitoha.DeleteDeleteManifest).Methods("DELETE")
 
 	// execute server
-	fmt.Println("Listen on \"127.0.0.1:9806\" ...")
-	http.ListenAndServe("127.0.0.1:9806", router)
+	// local
+	go func() {
+		fmt.Println("Listen on \"127.0.0.1:9806\" ...")
+		http.ListenAndServe("127.0.0.1:9806", router)
+	}()
+	// listen for cluster controller
+	go func() {
+		fmt.Println("Listen on \"0.0.0.0:9816\" ...")
+		http.ListenAndServe("0.0.0.0:9816", router)
+	}()
+
+	select {}
 }

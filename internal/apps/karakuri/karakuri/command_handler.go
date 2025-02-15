@@ -74,10 +74,19 @@ type RequestShowContainerSpec struct {
 // container requests
 // request create container
 func requestCreateContainer(request_param RequestCreateContainer) (result bool, message string) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
 	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "!", -1)
-	url := karakuripkgs.SERVER +
+
+	url := "http://" + cluster +
 		"/container/create/" +
 		new_image + "/" +
 		request_param.Port + "/" +
@@ -112,7 +121,22 @@ func requestCreateContainer(request_param RequestCreateContainer) (result bool, 
 
 // request start container
 func requestStartContainer(id, terminal string) (result bool, meessage string) {
-	url := karakuripkgs.SERVER + "/container/start/" + id + "/" + terminal
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+	// Check if it is an available option
+	if cluster != "localhost:9806" {
+		if terminal == "true" {
+			fmt.Println("'--it' option is not available for remote clusters")
+			os.Exit(1)
+		}
+	}
+
+	url := "http://" + cluster + "/container/start/" + id + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -138,10 +162,25 @@ func requestStartContainer(id, terminal string) (result bool, meessage string) {
 
 // func requestRunContainer(image string, port string, mount string, cmd string, registry string) (bool, string) {
 func requestRunContainer(request_param RequestRunContainer, terminal string) (bool, string) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+	// Check if it is an available option
+	if cluster != "localhost:9806" {
+		if terminal == "true" {
+			fmt.Println("'--it' option is not available for remote clusters")
+			os.Exit(1)
+		}
+	}
+
 	new_image := strings.Replace(request_param.Image, "/", "!", -1)
 	new_mount := strings.Replace(request_param.Mount, "/", "-", -1)
 	new_command := strings.Replace(request_param.Cmd, "/", "-", -1)
-	url := karakuripkgs.SERVER +
+	url := "http://" + cluster +
 		"/container/run/" +
 		new_image + "/" +
 		request_param.Port + "/" +
@@ -177,8 +216,23 @@ func requestRunContainer(request_param RequestRunContainer, terminal string) (bo
 
 // request exec container
 func requestExecContainer(id, terminal, cmd string) (result bool, message string) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+	// Check if it is an available option
+	if cluster != "localhost:9806" {
+		if terminal == "true" {
+			fmt.Println("'--it' option is not available for remote clusters")
+			os.Exit(1)
+		}
+	}
+
 	new_command := strings.Replace(cmd, "/", "-", -1)
-	url := karakuripkgs.SERVER + "/container/exec/" + id + "/" + new_command + "/" + terminal
+	url := "http://" + cluster + "/container/exec/" + id + "/" + new_command + "/" + terminal
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -203,7 +257,15 @@ func requestExecContainer(id, terminal, cmd string) (result bool, message string
 }
 
 func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
-	url := karakuripkgs.SERVER + "/container/ls/" + namespace
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/container/ls/" + namespace
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -228,7 +290,20 @@ func requestShowContainer(namespace string) (string, hitoha.ContainerList) {
 }
 
 func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
-	url := karakuripkgs.SERVER + "/container/spec/" + id
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+	// Check if it is an available option
+	if cluster != "localhost:9806" {
+		fmt.Println("'karakuri spec' command is not available for remote clusters")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/container/spec/" + id
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -254,7 +329,15 @@ func requestShowContainerSpec(id string) (bool, karakuripkgs.ConfigSpec) {
 }
 
 func requestStopContainer(id string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/container/kill/" + id
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/container/kill/" + id
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -279,7 +362,15 @@ func requestStopContainer(id string) (result bool, message string) {
 }
 
 func requestDeleteContainer(id string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/container/delete/" + id
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/container/delete/" + id
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 
@@ -329,11 +420,7 @@ func StartContainer(request_param RequestStartContainer) {
 		if request_param.Terminal {
 			// execute runtime: start
 			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
-			// setup port forward
-			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
 			hitoha.UpdateContainerStatus(container_id, "stopped")
-			// delete port forward
-			hitoha.SetupPortForwarding("delete", config_spec.Network)
 		} else {
 			fmt.Println("container: " + container_id + " start success.")
 		}
@@ -354,9 +441,6 @@ func RunContainer(request_param RequestRunContainer) {
 			karakuripkgs.RuntimeStart(container_id, request_param.Terminal)
 
 			hitoha.UpdateContainerStatus(container_id, "stopped")
-			// delete port forward
-			config_spec := karakuripkgs.ReadSpecFile(karakuripkgs.FUTABA_ROOT + "/" + container_id)
-			hitoha.SetupPortForwarding("delete", config_spec.Network)
 			// delete container
 			if request_param.Remove {
 				DeleteContainer(RequestDeleteContainer{
@@ -364,8 +448,6 @@ func RunContainer(request_param RequestRunContainer) {
 					Name: "none",
 				})
 			}
-		} else {
-			hitoha.UpdateContainerStatus(container_id, "running")
 		}
 	}
 }
@@ -474,7 +556,15 @@ func DeleteContainer(request_param RequestDeleteContainer) {
 // image request
 // show image
 func requestShowImage() (string, hitoha.ImageList) {
-	url := karakuripkgs.SERVER + "/image/ls"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/image/ls"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -500,8 +590,16 @@ func requestShowImage() (string, hitoha.ImageList) {
 
 // pull image
 func requestPullImage(image_tag string, os_arch string, registry string) (result bool, inlocal bool) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := karakuripkgs.SERVER + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + registry
+	url := "http://" + cluster + "/image/pull/" + new_image_tag + "/" + os_arch + "/" + registry
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -531,8 +629,16 @@ func requestPullImage(image_tag string, os_arch string, registry string) (result
 
 // push image
 func requestPushImage(image_tag string, registry string) (result bool, message string) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := karakuripkgs.SERVER + "/image/push/" + new_image_tag + "/" + registry
+	url := "http://" + cluster + "/image/push/" + new_image_tag + "/" + registry
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -559,7 +665,15 @@ func requestPushImage(image_tag string, registry string) (result bool, message s
 
 // delete image
 func requestDeleteImage(id string) bool {
-	url := karakuripkgs.SERVER + "/image/delete/" + id
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/image/delete/" + id
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 
@@ -626,7 +740,15 @@ func DeleteImage(id string) {
 // ----------------------
 // namespace request
 func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
-	url := karakuripkgs.SERVER + "/namespace/ls"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/namespace/ls"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -651,7 +773,15 @@ func requestShowNamespace() (result bool, namespace_list hitoha.NamespaceList) {
 }
 
 func requestCreateNamespace(namespace string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/namespace/create/" + namespace
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/namespace/create/" + namespace
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -676,7 +806,15 @@ func requestCreateNamespace(namespace string) (result bool, message string) {
 }
 
 func requestDeleteNamespace(namespace string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/namespace/delete/" + namespace
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/namespace/delete/" + namespace
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 
@@ -722,7 +860,15 @@ func DeleteNamespace(namespace string) {
 // ----------------------
 // module request
 func requestEnableModule(mod_name string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/mod/enable/" + mod_name
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/mod/enable/" + mod_name
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -747,7 +893,15 @@ func requestEnableModule(mod_name string) (result bool, message string) {
 }
 
 func requestDisableModule(mod_name string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/mod/disable/" + mod_name
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/mod/disable/" + mod_name
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 
@@ -772,7 +926,15 @@ func requestDisableModule(mod_name string) (result bool, message string) {
 }
 
 func requestShowModule() (result bool, mod_list karakuri_mod.ModList) {
-	url := karakuripkgs.SERVER + "/mod/list"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/mod/list"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -819,7 +981,15 @@ func ShowModuleList() {
 // registry controller
 // connect registry
 func requestConnectRegistry(registry string) (result bool, message string) {
-	url := karakuripkgs.SERVER + "/reg/connect/" + registry
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/reg/connect/" + registry
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -844,7 +1014,15 @@ func requestConnectRegistry(registry string) (result bool, message string) {
 }
 
 func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
-	url := karakuripkgs.SERVER + "/reg/target"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/reg/target"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -869,7 +1047,15 @@ func requestTargetRegistry() (result bool, registry_info hitoha.RegistryInfo) {
 }
 
 func requestGetRepository() (result bool, message string, repository_list hitoha.RepogitryList) {
-	url := karakuripkgs.SERVER + "/reg/repository"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/reg/repository"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -894,8 +1080,16 @@ func requestGetRepository() (result bool, message string, repository_list hitoha
 }
 
 func requestGetTag(repository string) (result bool, message string, tag_list hitoha.TagList) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
 	new_repository := strings.Replace(repository, "/", "!", -1)
-	url := karakuripkgs.SERVER + "/reg/tag/" + new_repository
+	url := "http://" + cluster + "/reg/tag/" + new_repository
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -920,7 +1114,15 @@ func requestGetTag(repository string) (result bool, message string, tag_list hit
 }
 
 func requestDisconnectRegistry() (result bool, message string) {
-	url := karakuripkgs.SERVER + "/reg/disconnect"
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/reg/disconnect"
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 
@@ -945,8 +1147,16 @@ func requestDisconnectRegistry() (result bool, message string) {
 }
 
 func requestDeleteImageManifest(image_tag string) (result bool, message string) {
+	// cluster
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
 	new_image_tag := strings.Replace(image_tag, "/", "!", -1)
-	url := karakuripkgs.SERVER + "/reg/delete/" + new_image_tag
+	url := "http://" + cluster + "/reg/delete/" + new_image_tag
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 

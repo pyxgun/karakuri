@@ -14,9 +14,58 @@ type ResponseContainerId struct {
 	Message string `json:"message"`
 }
 
+type ClusterInfo struct {
+	Mode   string `json:"mode"`
+	Target string `json:"target"`
+	Status string `json:"connection_status"`
+}
+
+func checkTargetClusterFile() {
+	if _, stat := os.Stat(KARAKURI_CLSCTL_ROOT); stat != nil {
+		if err := os.MkdirAll(KARAKURI_CLSCTL_ROOT, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+
+	if _, stat := os.Stat(KARAKURI_CLSCTL_CLSINFO); stat != nil {
+		var cluster_info ClusterInfo
+		cluster_info.Mode = "stand-alone"
+		cluster_info.Target = SERVER
+		cluster_info.Status = "connected"
+		data, _ := json.MarshalIndent(cluster_info, "", "  ")
+		if err := os.WriteFile(KARAKURI_CLSCTL_CLSINFO, data, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func getTargetCluster() ClusterInfo {
+	checkTargetClusterFile()
+
+	var bytes []byte
+	bytes, err := os.ReadFile(KARAKURI_CLSCTL_CLSINFO)
+	if err != nil {
+		panic(err)
+	}
+
+	var cluster_info ClusterInfo
+	if err := json.Unmarshal(bytes, &cluster_info); err != nil {
+		panic(err)
+	}
+
+	return cluster_info
+}
+
 // request retrieve container id
 func RequestContainerId(name string) (result bool, id string, message string) {
-	url := SERVER + "/container/getid/" + name
+	cluster_info := getTargetCluster()
+	cluster := cluster_info.Target
+	if cluster_info.Status != "connected" {
+		fmt.Println("cluster: " + cluster + " is not connected.")
+		os.Exit(1)
+	}
+
+	url := "http://" + cluster + "/container/getid/" + name
 
 	req, _ := http.NewRequest("GET", url, nil)
 
