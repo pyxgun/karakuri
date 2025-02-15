@@ -108,85 +108,65 @@ func main() {
 	// Container
 	// GET
 	remote_router.Handle("/container/ls/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerList))).Methods("GET")
-	//remote_router.HandleFunc("/container/ls/{namespace}", hitoha.GetContainerList).Methods("GET")
 	remote_router.Handle("/container/spec/{id}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerSpec))).Methods("GET")
-	//remote_router.HandleFunc("/container/spec/{id}", hitoha.GetContainerSpec).Methods("GET")
 	remote_router.Handle("/container/getid/{name}", authMiddleWare(http.HandlerFunc(hitoha.GetContainerId))).Methods("GET")
-	//remote_router.HandleFunc("/container/getid/{name}", hitoha.GetContainerId).Methods("GET")
 	// POST
 	remote_router.Handle("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", authMiddleWare(http.HandlerFunc(hitoha.PostCreateContainer))).Methods("POST")
-	//remote_router.HandleFunc("/container/create/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}", hitoha.PostCreateContainer).Methods("POST")
 	remote_router.Handle("/container/start/{id}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostStartContainer))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	remote_router.Handle("/container/run/{image}/{port}/{mount}/{cmd}/{registry}/{name}/{namespace}/{restart}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostRunContainer))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	remote_router.Handle("/container/exec/{id}/{cmd}/{terminal}", authMiddleWare(http.HandlerFunc(hitoha.PostExecContainer))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	remote_router.Handle("/container/kill/{id}", authMiddleWare(http.HandlerFunc(hitoha.PostKillContainer))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	// DELETE
 	remote_router.Handle("/container/delete/{id}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteContainer))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 
 	// Image
 	// GET
 	remote_router.Handle("/image/ls", authMiddleWare(http.HandlerFunc(hitoha.GetShowImages))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	remote_router.Handle("/image/pull/{image-tag}/{os-arch}/{registry}", authMiddleWare(http.HandlerFunc(hitoha.GetPullImage))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	// POST
 	remote_router.Handle("/image/push/{image-tag}/{registry}", authMiddleWare(http.HandlerFunc(hitoha.PostPushImage))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	// DELETE
 	remote_router.Handle("/image/delete/{id}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteImage))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 
 	// namespcae
 	// GET
 	remote_router.Handle("/namespace/ls", authMiddleWare(http.HandlerFunc(hitoha.GetNamespaceList))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	// POST
 	remote_router.Handle("/namespace/create/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.PostNamespace))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	// DELETE
 	remote_router.Handle("/namespace/delete/{namespace}", authMiddleWare(http.HandlerFunc(hitoha.DeleteNamespace))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 
 	// module
 	// GET
 	remote_router.Handle("/mod/list", authMiddleWare(http.HandlerFunc(hitoha.GetModuleList))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	// POST
 	remote_router.Handle("/mod/enable/{mod_name}", authMiddleWare(http.HandlerFunc(hitoha.PostEnableModule))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	// DELETE
 	remote_router.Handle("/mod/disable/{mod_name}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDisableModule))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 
 	// registry controller
 	// GET
 	remote_router.Handle("/reg/target", authMiddleWare(http.HandlerFunc(hitoha.GetTargetRegistry))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	remote_router.Handle("/reg/repository", authMiddleWare(http.HandlerFunc(hitoha.GetShowRepositories))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	remote_router.Handle("/reg/tag/{repository}", authMiddleWare(http.HandlerFunc(hitoha.GetShowTags))).Methods("GET")
-	//remote_router.HandleFunc(, ).Methods("GET")
 	// POST
 	remote_router.Handle("/reg/connect/{registry}", authMiddleWare(http.HandlerFunc(hitoha.PostConnectRegistry))).Methods("POST")
-	//remote_router.HandleFunc(, ).Methods("POST")
 	// DELETE
 	remote_router.Handle("/reg/disconnect", authMiddleWare(http.HandlerFunc(hitoha.DeleteDisconnectRegistry))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 	remote_router.Handle("/reg/delete/{image-tag}", authMiddleWare(http.HandlerFunc(hitoha.DeleteDeleteManifest))).Methods("DELETE")
-	//remote_router.HandleFunc(, ).Methods("DELETE")
 
 	// execute server
-	// local
+	// access from local controller
 	go func() {
 		fmt.Println("Listen on \"127.0.0.1:9806\" ...")
 		http.ListenAndServe("127.0.0.1:9806", router)
 	}()
-	// listen for cluster controller
+
+	// access from external controller
+	// port 9816 allows access from all addresses.
+	// However, when running in standalone mode
+	// access is denied by packet filters (iptables).
+	// In remote control mode, authentication by Authorization header is required for access.
 	go func() {
 		fmt.Println("Listen on \"0.0.0.0:9816\" ...")
 		http.ListenAndServe("0.0.0.0:9816", remote_router)
