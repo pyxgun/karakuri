@@ -128,7 +128,7 @@ jobs:
         - name: Delete Image
           run: |
             sudo karakuri regctl delete --image alpine
-            sudo karakuri regctl get tag --repository karakuri/dns
+            sudo karakuri regctl get tag --repository alpine
         
         - name: Disable Modules
           run: |
