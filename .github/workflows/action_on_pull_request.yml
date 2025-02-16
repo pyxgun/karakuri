@@ -113,20 +113,21 @@ jobs:
           run: |
             IPADDR=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
             sudo karakuri regctl connect --registry $IPADDR:5000
-            sudo karakuri regctl target
+            sudo karakuri regctl info
 
         - name: Push Image
           run: |
-            sudo karakuri push --image karakuri/dns:system-mod
+            sudo karakuri pull --image alpine
+            sudo karakuri push --image alpine
         
         - name: Show Registry
           run: |
             sudo karakuri regctl get repository
-            sudo karakuri regctl get tag --repository karakuri/dns
+            sudo karakuri regctl get tag --repository alpine
         
         - name: Delete Image
           run: |
-            sudo karakuri regctl delete --image karakuri/dns:system-mod
+            sudo karakuri regctl delete --image alpine
             sudo karakuri regctl get tag --repository karakuri/dns
         
         - name: Disable Modules
