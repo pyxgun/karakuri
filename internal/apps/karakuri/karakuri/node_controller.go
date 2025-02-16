@@ -22,7 +22,7 @@ type NodeInfo struct {
 
 const (
 	STAND_ALONE_MODE    = "stand-alone"
-	REMOTE_CONTROL_MODE = "remote-controll"
+	REMOTE_CONTROL_MODE = "remote-control"
 )
 
 func checkTargetNodeFile() {
@@ -391,7 +391,7 @@ func DisconnectNode() {
 func EnableRemoteControllMode() {
 	node_mode := getTargetNode().Mode
 	if node_mode == REMOTE_CONTROL_MODE {
-		fmt.Println("already running in remote-controll mode")
+		fmt.Println("already running in remote-control mode")
 		return
 	}
 	setNodeMode(REMOTE_CONTROL_MODE)
@@ -399,13 +399,13 @@ func EnableRemoteControllMode() {
 	device_address, _ := getDeviceIpAddress()
 	iptables_cmd := exec.Command("iptables", "-D", "INPUT", "-p", "tcp", "-i", karakuripkgs.HOST_NIC, "-d", device_address.String(), "--dport", "9816", "-j", "DROP")
 	if err := iptables_cmd.Run(); err != nil {
-		fmt.Println("failed to enable remote-controll mode")
+		fmt.Println("failed to enable remote-control mode")
 		return
 	}
 	// generate auth code
 	auth_code := generateAuthCode()
 	storeAuthCode(auth_code)
-	fmt.Println("currently running in remote-controll mode")
+	fmt.Println("currently running in remote-control mode")
 	fmt.Println("now you can connect from remote to this node. please execute the following command on controller node:")
 	fmt.Println("  karakuri nodectl connect --node " + device_address.String() + " --auth " + auth_code)
 }
@@ -421,7 +421,7 @@ func DisableRemoteControllMode() {
 	device_address, _ := getDeviceIpAddress()
 	iptables_cmd := exec.Command("iptables", "-A", "INPUT", "-p", "tcp", "-i", karakuripkgs.HOST_NIC, "-d", device_address.String(), "--dport", "9816", "-j", "DROP")
 	if err := iptables_cmd.Run(); err != nil {
-		fmt.Println("failed to disable remote-controll mode")
+		fmt.Println("failed to disable remote-control mode")
 		return
 	}
 	fmt.Println("currently running in stand-alone mode")
