@@ -561,8 +561,8 @@ func main() {
 			Usage: "registry controller",
 			Subcommands: []cli.Command{
 				{
-					Name:  "target",
-					Usage: "show target registry",
+					Name:  "info",
+					Usage: "show registry info",
 					Action: func(c *cli.Context) {
 						karakuri.ShowTargetRegistry()
 					},
@@ -648,8 +648,8 @@ func main() {
 					Usage: "change mode",
 					Subcommands: []cli.Command{
 						{
-							Name:  "remote-controll",
-							Usage: "change mode to remote-controll mode",
+							Name:  "remote-control",
+							Usage: "change mode to remote-control mode",
 							Action: func(c *cli.Context) {
 								karakuri.EnableRemoteControllMode()
 							},
