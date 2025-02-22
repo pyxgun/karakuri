@@ -50,7 +50,7 @@ func CreateContainer(params ParamsCreateContainer) ResponseContainerInfo {
 	}
 
 	if !isImageExists(image, tag) {
-		PullImage(params.ImageInfo, "linux:amd64", params.Registry)
+		PullImage(params.ImageInfo, karakuripkgs.HOST_OS+":"+karakuripkgs.HOST_ARCH, params.Registry)
 	}
 
 	// retrieve rootfs

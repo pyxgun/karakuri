@@ -246,7 +246,7 @@ func createIngressContainer(mod_info ModInfo) {
 		"create",
 		"--name", mod_info.Name,
 		"--image", mod_info.ImageName,
-		"--port", "443:443:tcp",
+		"--port", "4443:443:tcp",
 		"--restart", "on-boot",
 		"--ns", "system-mod",
 	}

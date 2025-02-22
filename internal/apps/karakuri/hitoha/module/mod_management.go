@@ -81,7 +81,7 @@ func NewModList() {
 			ImageName:   "karakuri/ingress:latest",
 			Path:        karakuripkgs.KARAKURI_MOD_INGRESS,
 			Status:      "disable",
-			Description: "ingress controller for external access listen on 443",
+			Description: "ingress controller for external access listen on 4443",
 		},
 	)
 

@@ -3,6 +3,7 @@ package main
 import (
 	"karakuri"
 	"karakuri_mod"
+	"karakuripkgs"
 	"os"
 
 	"github.com/urfave/cli"
@@ -392,7 +393,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:        "os",
-					Value:       "linux:amd64",
+					Value:       karakuripkgs.HOST_OS + ":" + karakuripkgs.HOST_ARCH,
 					Destination: &flag_os,
 				},
 				cli.StringFlag{
