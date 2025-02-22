@@ -1,6 +1,6 @@
 # <img src="./docs/images/karakuri_icon.png">
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/release-v0.2.0-blue.svg)
+![Version](https://img.shields.io/badge/release-v0.2.1-blue.svg)
 
 ## Introduction
 `karakuri` is a container runtime for small-scale development environments.  
@@ -9,6 +9,7 @@
 * Support for image pulling from Docker Hub and Private Registry
 * Support for image pushing to Priavte Registry
 * Support for image build
+* Supports on x86_64 and Arm architecture
 * Resourcce limitation of containers by cgroup v2
 * Container grouping and isolation network by namespace
 * Management and execution of core functions (e.g. dns, ingress, etc) through module functionality
@@ -38,6 +39,28 @@ On Ubuntu/Debian:
 $ snap install go --classic
 $ apt update && apt install -y cgroup-tools iptables
 ```
+
+And also you'll need to edit `pkgs/host_info.go` according to your environment.  
+Change the host's NIC:`HOST_NIC`, OS:`HOST_OS` and architecture:`HOST_ARCH` as necessary.
+```go:pkgs/host_info.go
+// ====================================
+//
+//	Edit to match your environment
+//
+// ====================================
+const (
+	// Set your host nic
+	HOST_NIC = "eth0"
+	//HOST_NIC = "wlan0"
+
+	// Set your os/architecture
+	HOST_OS   = "linux"
+	HOST_ARCH = "amd64"
+	//HOST_ARCH = "arm"
+)
+```
+This parameter is used to specify the architecture for the container network setup and image pulling.  
+If this parameter is different from the execution environment, the container may not be set up correctly.
 
 ### Build
 ```
