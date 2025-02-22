@@ -294,8 +294,8 @@ func buildProcCreateBlobFile(build_book BuildBook, image_layer string) {
 	// set cmd
 	blob_file.Config.Cmd = build_book.Blob.Cmd
 	// set os
-	blob_file.Os = "linux"
-	blob_file.Arch = "amd64"
+	blob_file.Os = karakuripkgs.HOST_OS
+	blob_file.Arch = karakuripkgs.HOST_ARCH
 
 	// write file
 	data, _ := json.MarshalIndent(blob_file, "", "  ")
@@ -305,6 +305,19 @@ func buildProcCreateBlobFile(build_book BuildBook, image_layer string) {
 }
 
 func BuildImage(image string, buildpath string) {
+	// node
+	node_info := getTargetNode()
+	node := node_info.Target
+	if node_info.Status != "connected" {
+		fmt.Println("node: " + node + " is not connected.")
+		os.Exit(1)
+	}
+	// Check if it is an available option
+	if node != karakuripkgs.SERVER {
+		fmt.Println("'karakuri build' command is not available for remote node")
+		os.Exit(1)
+	}
+
 	// parse image tag
 	image_info := strings.Split(image, ":")
 	image_name := image_info[0]

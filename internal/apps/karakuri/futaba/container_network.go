@@ -15,7 +15,7 @@ func setupContainerNetwork(pid int, networ_spec karakuripkgs.SpecNetwork) {
 		panic(err)
 	}
 	// set eth0 ip address
-	cmd2 := exec.Command("nsenter", "-t", str_pid, "-n", "ip", "address", "add", networ_spec.Address, "dev", "eth0")
+	cmd2 := exec.Command("nsenter", "-t", str_pid, "-n", "ip", "address", "add", networ_spec.Address, "dev", karakuripkgs.HOST_NIC)
 	if err := cmd2.Run(); err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func setupContainerNetwork(pid int, networ_spec karakuripkgs.SpecNetwork) {
 		panic(err)
 	}
 	// link up eth0
-	cmd6 := exec.Command("nsenter", "-t", str_pid, "-n", "ip", "link", "set", "up", "eth0")
+	cmd6 := exec.Command("nsenter", "-t", str_pid, "-n", "ip", "link", "set", "up", karakuripkgs.HOST_NIC)
 	if err := cmd6.Run(); err != nil {
 		panic(err)
 	}
