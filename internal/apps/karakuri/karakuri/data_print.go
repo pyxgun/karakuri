@@ -82,6 +82,30 @@ func printHostDirectoryMount(spec karakuripkgs.ConfigSpec) {
 	}
 }
 
+func printAllowedCapability(spec karakuripkgs.ConfigSpec) {
+	var count = 0
+	for _, entry := range spec.Capability.AddCapability {
+		if count != 0 {
+			fmt.Printf("            ")
+		}
+		fmt.Printf(" [%-2d] ", count+1)
+		fmt.Printf(" %s\n", entry)
+		count += 1
+	}
+}
+
+func printDeniedCapability(spec karakuripkgs.ConfigSpec) {
+	var count = 0
+	for _, entry := range spec.Capability.DropCapability {
+		if count != 0 {
+			fmt.Printf("            ")
+		}
+		fmt.Printf(" [%-2d] ", count+1)
+		fmt.Printf(" %s\n", entry)
+		count += 1
+	}
+}
+
 func printContainerSpec(spec karakuripkgs.ConfigSpec) {
 	fmt.Println("[BASIC]")
 	// Hostname
@@ -156,6 +180,15 @@ func printContainerSpec(spec karakuripkgs.ConfigSpec) {
 	// host file
 	fmt.Printf(" HOST DIRECTORY : ")
 	printHostDirectoryMount(spec)
+
+	fmt.Println()
+	fmt.Println()
+
+	fmt.Println("[CAPABILITY]")
+	fmt.Printf(" ALLOWED   :")
+	printAllowedCapability(spec)
+	fmt.Printf(" DENIED    :")
+	printDeniedCapability(spec)
 
 	fmt.Println()
 }

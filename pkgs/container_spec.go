@@ -78,17 +78,23 @@ type SpecNetwork struct {
 	Port       []SpecPortForward `json:"port"`
 }
 
+type SpecCapability struct {
+	AddCapability  []string `json:"add"`
+	DropCapability []string `json:"drop"`
+}
+
 type ConfigSpec struct {
-	Version  string      `json:"version"`
-	Process  SpecProcess `json:"process"`
-	Restart  string      `json:"restart"`
-	Cgroup   SpecCgroup  `json:"cgroup"`
-	Root     SpecRoot    `json:"root"`
-	Image    SpecImage   `json:"image"`
-	Hostname string      `json:"hostname"`
-	Fifo     string      `json:"fifo"`
-	Mounts   []SpecMount `json:"mounts"`
-	Network  SpecNetwork `json:"network"`
+	Version    string         `json:"version"`
+	Process    SpecProcess    `json:"process"`
+	Restart    string         `json:"restart"`
+	Cgroup     SpecCgroup     `json:"cgroup"`
+	Root       SpecRoot       `json:"root"`
+	Image      SpecImage      `json:"image"`
+	Hostname   string         `json:"hostname"`
+	Fifo       string         `json:"fifo"`
+	Mounts     []SpecMount    `json:"mounts"`
+	Network    SpecNetwork    `json:"network"`
+	Capability SpecCapability `json:"capability"`
 }
 
 func CreateSpecFile(spec_flag SpecFlag) {
@@ -242,6 +248,27 @@ func CreateSpecFile(spec_flag SpecFlag) {
 			Address:    spec_flag.Address,
 			Gateway:    spec_flag.Gateway,
 			Nameserver: spec_flag.Nameserver,
+		},
+		Capability: SpecCapability{
+			AddCapability: []string{
+				"CHOWN",
+				"DAC_OVERRIDE",
+				"FSETID",
+				"FOWNER",
+				"MKNOD",
+				"NET_RAW",
+				"SETGID",
+				"SETUID",
+				"SETFCAP",
+				"SETPCAP",
+				"NET_BIND_SERVICE",
+				"KILL",
+				"AUDIT_WRITE",
+				"SYS_CHROOT",
+			},
+			DropCapability: []string{
+				// by default, no drop capability
+			},
 		},
 	}
 

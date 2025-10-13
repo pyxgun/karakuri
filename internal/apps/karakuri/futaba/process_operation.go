@@ -144,7 +144,71 @@ func createSymbolicLink(config_spec karakuripkgs.ConfigSpec) error {
 	return nil
 }
 
-func setCapabilities(pid int, caps []int, dropCaps []int) error {
+func setCapabilities(pid int, config_spec karakuripkgs.ConfigSpec) error {
+	// capability mapping
+	mapping := map[string]int{
+		"CHOWN":              unix.CAP_CHOWN,
+		"DAC_OVERRIDE":       unix.CAP_DAC_OVERRIDE,
+		"FSETID":             unix.CAP_FSETID,
+		"FOWNER":             unix.CAP_FOWNER,
+		"MKNOD":              unix.CAP_MKNOD,
+		"NET_RAW":            unix.CAP_NET_RAW,
+		"SETGID":             unix.CAP_SETGID,
+		"SETUID":             unix.CAP_SETUID,
+		"SETFCAP":            unix.CAP_SETFCAP,
+		"SETPCAP":            unix.CAP_SETPCAP,
+		"NET_BIND_SERVICE":   unix.CAP_NET_BIND_SERVICE,
+		"KILL":               unix.CAP_KILL,
+		"AUDIT_WRITE":        unix.CAP_AUDIT_WRITE,
+		"SYS_CHROOT":         unix.CAP_SYS_CHROOT,
+		"AUDIT_CONTROL":      unix.CAP_AUDIT_CONTROL,
+		"AUDIT_READ":         unix.CAP_AUDIT_READ,
+		"BLOCK_SUSPEND":      unix.CAP_BLOCK_SUSPEND,
+		"BPF":                unix.CAP_BPF,
+		"CHECKPOINT_RESTORE": unix.CAP_CHECKPOINT_RESTORE,
+		"DAC_READ_SEARCH":    unix.CAP_DAC_READ_SEARCH,
+		"IPC_LOCK":           unix.CAP_IPC_LOCK,
+		"IPC_OWNER":          unix.CAP_IPC_OWNER,
+		"LEASE":              unix.CAP_LEASE,
+		"LINUX_IMMUTABLE":    unix.CAP_LINUX_IMMUTABLE,
+		"MAC_ADMIN":          unix.CAP_MAC_ADMIN,
+		"MAC_OVERRIDE":       unix.CAP_MAC_OVERRIDE,
+		"NET_ADMIN":          unix.CAP_NET_ADMIN,
+		"NET_BROADCAST":      unix.CAP_NET_BROADCAST,
+		"PERFMON":            unix.CAP_PERFMON,
+		"SYS_ADMIN":          unix.CAP_SYS_ADMIN,
+		"SYS_BOOT":           unix.CAP_SYS_BOOT,
+		"SYS_MODULE":         unix.CAP_SYS_MODULE,
+		"SYS_NICE":           unix.CAP_SYS_NICE,
+		"SYS_PACCT":          unix.CAP_SYS_PACCT,
+		"SYS_PTRACE":         unix.CAP_SYS_PTRACE,
+		"SYS_RAWIO":          unix.CAP_SYS_RAWIO,
+		"SYS_RESOURCE":       unix.CAP_SYS_RESOURCE,
+		"SYS_TIME":           unix.CAP_SYS_TIME,
+		"SYS_TTY_CONFIG":     unix.CAP_SYS_TTY_CONFIG,
+		"SYSLOG":             unix.CAP_SYSLOG,
+		"WAKE_ALARM":         unix.CAP_WAKE_ALARM,
+	}
+
+	// mapping add capability
+	addCaps := make([]int, len(config_spec.Capability.AddCapability))
+	for i, s := range config_spec.Capability.AddCapability {
+		if val, ok := mapping[s]; ok {
+			addCaps[i] = val
+		} else {
+			return fmt.Errorf("failed to read capability")
+		}
+	}
+	// mapping drop capability
+	dropCaps := make([]int, len(config_spec.Capability.DropCapability))
+	for i, s := range config_spec.Capability.DropCapability {
+		if val, ok := mapping[s]; ok {
+			dropCaps[i] = val
+		} else {
+			return fmt.Errorf("failed to read capability")
+		}
+	}
+
 	// 1. Drop from Bounding set
 	for _, c := range dropCaps {
 		if err := unix.Prctl(unix.PR_CAPBSET_DROP, uintptr(c), 0, 0, 0); err != nil {
@@ -160,7 +224,7 @@ func setCapabilities(pid int, caps []int, dropCaps []int) error {
 	var data [2]unix.CapUserData
 	var permittedLow, permittedHigh uint32
 
-	for _, c := range caps {
+	for _, c := range addCaps {
 		if c < 0 {
 			continue
 		}
@@ -417,28 +481,8 @@ func InitContainer(spec string) {
 		return
 	}
 
-	// adding capabilities list
-	caps := []int{
-		unix.CAP_CHOWN,
-		unix.CAP_DAC_OVERRIDE,
-		unix.CAP_FSETID,
-		unix.CAP_FOWNER,
-		unix.CAP_MKNOD,
-		unix.CAP_NET_RAW,
-		unix.CAP_SETGID,
-		unix.CAP_SETUID,
-		unix.CAP_SETFCAP,
-		unix.CAP_SETPCAP,
-		unix.CAP_NET_BIND_SERVICE,
-		unix.CAP_KILL,
-		unix.CAP_AUDIT_WRITE,
-	}
-	// dropping capabilities list
-	dropCaps := []int{
-		// if you need drop cap, specify in this array
-	}
 	// set capability
-	if err := setCapabilities(0, caps, dropCaps); err != nil {
+	if err := setCapabilities(0, config_spec); err != nil {
 		fmt.Println(err)
 		return
 	}

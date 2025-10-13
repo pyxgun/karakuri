@@ -12,24 +12,10 @@
 * Supports on x86_64 and Arm architecture
 * Resourcce limitation of containers by cgroup v2
 * Container grouping and isolation network by namespace
+* Capability control
 * Management and execution of core functions (e.g. dns, ingress, etc) through module functionality
 * Connecting to remote node and managing container
 * Connecting to the Registry and Repository/Tag Management
-
-## Components
-`karakuri` consists of three components.
-1. `karakuri`  
-   A CLI tool that provides the ability to send requests to high-level container runtime.
-1. `hitoha`  
-   High-level container runtime.  
-   Runs as a daemon process and performs container networking, lifecycle management and image management.  
-   `hitoha` provides a REST API as an interface and executes low-level container runtime in response to received requests.  
-   In addition, `hitoha` will provide add-on functions such as module functions and registry connection functions.
-1. `futaba`  
-   Low-level container runtime.  
-   `futaba` provides actual container operation, including namespace isolation, mounts, root filesystem changes, etc.
-
-<img src="./docs/images/karakuri_components.png">
 
 ## Building
 ### Pre-requisites
@@ -52,7 +38,7 @@ const (
 	// Set your host nic
 	HOST_NIC = "eth0"
 	//HOST_NIC = "wlan0"
-   HOST_ADDR = "172.17.20.200"
+   HOST_ADDR = "192.168.1.1"
 
 	// Set your os/architecture
 	HOST_OS   = "linux"
@@ -68,7 +54,7 @@ If this parameter is different from the execution environment, the container may
 $ git clone https://github.com/pyxgun/karakuri.git
 $ cd karakuri
 
-$ sh scripts/build.sh
+$ ./scripts/build.sh
 ```
 
 ### Test Run
