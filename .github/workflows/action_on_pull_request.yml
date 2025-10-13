@@ -1,0 +1,140 @@
+name: github-actions-on-pull-request
+
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'develop'
+      - 'main'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+    test:
+      runs-on: ubuntu-latest
+      timeout-minutes: 5
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: '>=1.22.0'
+            cache: false
+        
+        - name: OS Version
+          run: cat /etc/os-release
+        
+        - name: Go Version
+          run: go version
+        
+        - name: Test pkgs/
+          run: |
+            cd pkgs && go test -v ./... && cd ..
+
+    test_karakuri:
+      runs-on: ubuntu-latest
+      timeout-minutes: 5
+      needs: test
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        
+        - name: Setup Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: '>=1.22.0'
+            cache: false
+                
+        - name: Setup utilities
+          run: |
+            sudo apt update
+            sudo apt install -y cgroup-tools iptables
+        
+        - name: OS Version
+          run: cat /etc/os-release
+        
+        - name: Go Version
+          run: go version
+        
+        - name: Build
+          run: |
+            mkdir ./bin
+            sh ./scripts/futaba/build.sh
+            sh ./scripts/hitoha/build.sh
+            sh ./scripts/karakuri/build.sh
+            sudo cp ./bin/* /bin
+                
+        - name: Start Karakuri Daemon
+          run: |
+            sudo hitoha &
+                
+        - name: Create Namespace
+          run: |
+            sudo karakuri createns --name sandbox
+            sudo karakuri ns
+            ip a
+        
+        - name: Create Container to Namespace
+          run: |
+            sudo karakuri create --name test_container --image nginx:alpine --ns sandbox
+            sudo karakuri ls --ns sandbox
+
+        - name: Start Container
+          run: |
+            sudo karakuri start --name test_container
+            sudo karakuri ls --ns sandbox
+        
+        - name: Remove Containere
+          run: |
+            sudo karakuri rm --name test_container
+            sudo karakuri ls --ns sandbox
+      
+        - name: Remove Namespace
+          run: |
+            sudo karakuri rmns --name sandbox
+            sudo karakuri ns
+            ip a
+
+        - name: Enable Modules
+          run: |
+            sudo karakuri mod enable --name dns
+            sudo karakuri mod enable --name ingress
+            sudo karakuri mod enable --name registry
+            sudo karakuri mod enable --name registry-browser
+            sudo karakuri mod
+            sudo karakuri ls --ns system-mod
+        
+        - name: Connect Registry
+          run: |
+            IPADDR=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+            sudo karakuri regctl connect --registry $IPADDR:5000
+            sudo karakuri regctl info
+
+        - name: Push Image
+          run: |
+            sudo karakuri pull --image alpine
+            sudo karakuri push --image alpine
+        
+        - name: Show Registry
+          run: |
+            sudo karakuri regctl get repository
+            sudo karakuri regctl get tag --repository alpine
+        
+        - name: Delete Image
+          run: |
+            sudo karakuri regctl delete --image alpine
+            sudo karakuri regctl get tag --repository alpine
+        
+        - name: Disable Modules
+          run: |
+            sudo karakuri mod disable --name dns
+            sudo karakuri mod disable --name ingress
+            sudo karakuri mod disable --name registry
+            sudo karakuri mod disable --name registry-browser
+            sudo karakuri mod
+            sudo karakuri ls --ns system-mod
