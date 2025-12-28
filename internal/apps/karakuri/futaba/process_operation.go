@@ -31,6 +31,14 @@ func setNameeserver(config_spec karakuripkgs.ConfigSpec) error {
 	return nil
 }
 
+func setHostsfile(config_spec karakuripkgs.ConfigSpec) error {
+	hosts_file := config_spec.Root.Path + "/merged/etc/hosts"
+	if err := os.WriteFile(hosts_file, []byte("127.0.0.1 localhost\n127.0.1.1 "+config_spec.Hostname+"\n"), 0644); err != nil {
+		return errors.New("failed to create /etc/hosts")
+	}
+	return nil
+}
+
 func setEnv(config_spec karakuripkgs.ConfigSpec) error {
 	envs := config_spec.Process.Env
 	for _, entry := range envs {
@@ -76,7 +84,7 @@ func mountFs(config_spec karakuripkgs.ConfigSpec) error {
 				case "ro":
 					mount_flag |= syscall.MS_RDONLY
 				case "rw":
-					mount_flag |= syscall.O_RDWR
+					// mount_flag |= syscall.O_RDWR
 				case "bind":
 					mount_flag |= syscall.MS_BIND
 				default:
@@ -130,6 +138,7 @@ func createSymbolicLink(config_spec karakuripkgs.ConfigSpec) error {
 		{devDir + "/stdin", "/proc/self/fd/0"},
 		{devDir + "/stdout", "/proc/self/fd/1"},
 		{devDir + "/stderr", "/proc/self/fd/2"},
+		{devDir + "/ptmx", "/dev/pts/ptmx"},
 	}
 
 	for _, s := range symlinks {
@@ -472,8 +481,12 @@ func InitContainer(spec string) {
 		fmt.Println(err)
 		return
 	}
+
 	// set nameserver
 	setNameeserver(config_spec)
+
+	// set hosts
+	setHostsfile(config_spec)
 
 	// pivot root
 	if err := pivotRoot(config_spec.Root.Path); err != nil {
